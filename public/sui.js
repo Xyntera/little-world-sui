@@ -28,6 +28,29 @@ const short = a => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
 const explorerUrl = id => 'https://suiscan.xyz/testnet/object/' + id;
 
 function ui(msg, cls) { const el = $('sui-status'); if (el) { el.textContent = msg; el.className = 'sui-status' + (cls ? ' ' + cls : ''); } }
+function txDigest(r) { const t = r && (r.Transaction || r); return (t && t.digest) || ''; }
+function uiPending(msg, digest) {
+  const el = $('sui-status'); if (!el) return;
+  el.className = 'sui-status sui-warn'; el.replaceChildren();
+  el.append(document.createTextNode(msg));
+  if (digest) {
+    const a = document.createElement('a');
+    a.href = 'https://suiscan.xyz/testnet/tx/' + encodeURIComponent(digest);
+    a.target = '_blank'; a.rel = 'noreferrer noopener'; a.textContent = ' view transaction';
+    el.append(a);
+  }
+}
+function uiErr(msg, digest) {
+  const el = $('sui-status'); if (!el) return;
+  el.className = 'sui-status sui-warn'; el.replaceChildren();
+  el.append(document.createTextNode(msg));
+  if (digest) {
+    const a = document.createElement('a');
+    a.href = 'https://suiscan.xyz/testnet/tx/' + encodeURIComponent(digest);
+    a.target = '_blank'; a.rel = 'noreferrer noopener'; a.textContent = ' view transaction';
+    el.append(a);
+  }
+}
 
 async function gql(query, variables) {
   const r = await fetch(GQL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ query, variables }) });
@@ -88,8 +111,11 @@ async function createPassport(playerName) {
   try {
     const r = await execTx(tx => tx.moveCall({ target: PACKAGE_ID + '::' + MODULE + '::create_passport', arguments: [tx.pure.string(playerName || 'Explorer')] }));
     const err = txFailed(r); if (err) throw new Error(err);
-    await refreshPassport(); ui('Passport created on Sui testnet.', 'sui-ok');
-  } catch (e) { ui('Could not create passport: ' + String(e.message || e).slice(0, 160), 'sui-warn'); }
+    // real wallets return bcs-encoded effects we cannot parse, so confirm via read-back
+    await refreshPassport();
+    if (!state.passport) { uiPending('Transaction sent - the passport is not confirmed on-chain yet (indexing can lag).', txDigest(r)); }
+    else { ui('Passport created on Sui testnet.', 'sui-ok'); }
+  } catch (e) { uiErr('Could not create passport: ' + String(e.message || e).slice(0, 160), e.digest); }
   state.busy = false; render();
 }
 
@@ -102,8 +128,10 @@ async function mintStamp(cityId) {
     // fullnode read-after-write can lag; retry briefly, then trust the confirmed tx
     await refreshPassport();
     for (let i = 0; i < 3 && !state.stamps.has(cityId); i++) { await new Promise(res => setTimeout(res, 1500)); await refreshPassport(); }
-    state.stamps.add(cityId); ui('Stamp minted on-chain.', 'sui-ok');
-  } catch (e) { ui('Mint failed: ' + String(e.message || e).slice(0, 160), 'sui-warn'); }
+    // real wallets return bcs-encoded effects we cannot parse, so confirm via read-back
+    if (!state.stamps.has(cityId)) { uiPending('Transaction sent - the stamp is not confirmed on-chain yet (indexing can lag). Check the transaction before retrying.', txDigest(r)); }
+    else { ui('Stamp minted on-chain.', 'sui-ok'); }
+  } catch (e) { uiErr('Mint failed: ' + String(e.message || e).slice(0, 160), e.digest); }
   state.busy = false; render();
 }
 
