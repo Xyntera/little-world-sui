@@ -1,0 +1,23 @@
+// Original optional outing through existing activities. Page-session only; no rewards or saved progression.
+export function createOuting({getCity,getWorld,isReady,onNavigate,onDiscovery,onMessage,hasStory,canHandoff}){
+ const host=document.createElement('section');host.id='city-outing';host.className='city-outing';host.setAttribute('aria-labelledby','outing-title');
+ host.innerHTML='<p class="lk-eyebrow">PLAY A LITTLE, FIND A LITTLE</p><h3 id="outing-title">A little Sydney outing</h3><p class="lk-sub">Try the free fitting room, dance on stage, then find a story beside the sails. Original game layout, not a real-world tour.</p><ol id="outing-stops"></ol><p id="outing-status" class="lk-sub" role="status"></p><div class="outing-actions"><button type="button" class="lk-btn" id="outing-next"></button><button type="button" class="lk-btn lk-btn-ghost" id="outing-pause" hidden>Pause outing</button></div><small>Optional · this page only · no points, stamps or purchases. Earlier story finds on this page count.</small>';
+ document.querySelector('#panel-explore .lk-explore-art').before(host);
+ const titles=['Try the fitting room','Dance on the harbour stage','Find a story beside the sails'];
+ const descriptions=['Walk to the fictional Style Pavilion and choose Try styles. You do not need to change or save your outfit.','Walk onto the stage, choose a move, then press Start dance. Your move is shared with players in this game.','Open the existing discovery walk. Inspect the gold ring near the sails and answer what you see.'];
+ const handoff=document.createElement('div');handoff.id='outing-handoff';handoff.hidden=true;handoff.setAttribute('aria-label','Continue the Sydney outing');handoff.innerHTML='<button type="button" id="outing-go"></button><button type="button" id="outing-handoff-pause" aria-label="Pause outing">Pause</button>';document.querySelector('#play').append(handoff);
+ let started=false,paused=false,index=0,pending=false,lastKey='';
+ const supported=()=>getCity()==='sydney'&&!!getWorld()?.clothingVenue&&!!getWorld()?.stage;
+ const current=()=>started&&!paused&&index<3&&supported()&&isReady();
+ function render(){const ready=isReady(),show=pending&&!paused&&index<3&&supported()&&ready&&canHandoff();handoff.hidden=!show;document.body.classList.toggle('lk-outing-handoff',show);if(show)handoff.querySelector('#outing-go').textContent=index===1?'1 / 3 done · Next: stage':'2 / 3 done · Next: story';const key=JSON.stringify([supported(),ready,started,paused,index]);if(key===lastKey)return;lastKey=key;host.hidden=!supported();if(host.hidden)return;
+ const list=host.querySelector('#outing-stops');list.replaceChildren();titles.forEach((title,i)=>{const row=document.createElement('li');row.className=i<index?'is-done':i===index&&started?'is-current':'';row.textContent=(i<index?'Done: ':'')+title;if(i===index&&started){const note=document.createElement('p');note.textContent=descriptions[i];row.append(note);}list.append(row);});
+ const status=host.querySelector('#outing-status'),next=host.querySelector('#outing-next'),pause=host.querySelector('#outing-pause');
+ status.textContent=index===3?'Outing complete. The rest of the city is yours to explore.':!ready?'Finish your ride and step onto dry ground to continue.':paused?'Paused. Your completed stops stay on this page.':started?index+' / 3 stops done. Use the map bearing to reach this stop; it is not a walking route.':'Three connected things to do. Go at your own pace.';
+ next.hidden=index===3;next.disabled=!ready;next.textContent=!started?'Start outing':paused?'Resume outing':index===0?'Find the fitting room':index===1?'Find the stage':'Open the story walk';pause.hidden=!started||paused||index===3;
+ }
+ function record(kind){if(!current()||kind!==['fitting','dance','story'][index])return false;index++;if(index===2&&hasStory())index++;pending=index<3;render();onMessage(index===3?'Sydney outing complete. Keep exploring, or open Explore to see your stops.':titles[index-1]+' - done. Choose Next to continue, or Pause.');return true;}
+ function go(){if(!supported()||!isReady()||index===3)return;started=true;paused=false;pending=false;render();if(index===2&&hasStory()){record('story');return;}if(index===2)onDiscovery();else onNavigate(index===0?getWorld().clothingVenue:null);}
+ host.querySelector('#outing-next').onclick=go;handoff.querySelector('#outing-go').onclick=()=>{if(!pending||!canHandoff())return;go();};
+ function pause(){paused=true;pending=false;render();}host.querySelector('#outing-pause').onclick=pause;handoff.querySelector('#outing-handoff-pause').onclick=()=>{if(!pending||!canHandoff()||!supported()||!isReady())return;pause();};render();
+ return{render,record,get state(){return{started,paused,index,available:supported()};}};
+}

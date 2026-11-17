@@ -1,0 +1,878 @@
+.lk-root {
+    position: relative;
+    font-family: 'Avenir Next', 'Segoe UI', system-ui, sans-serif;
+    color: #f0e8cf;
+    background: #0b332c;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+}
+.lk-ml { color: #d9c97e; font-weight: 400; }
+
+/* stage */
+.lk-stage { position: relative; width: 100%; }
+.lk-canvas { display: block; width: 100%; height: clamp(340px, 62vh, 620px); touch-action: none; }
+
+/* HUD */
+.lk-hud {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 16px; z-index: 5; flex-wrap: wrap;
+}
+.lk-brand { font-weight: 700; letter-spacing: 0.14em; font-size: 13px; color: #f4eed6; text-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+.lk-brand-icon { margin-right: 2px; }
+.lk-pill {
+    background: rgba(11, 51, 44, 0.88); color: #f0e8cf; border: 1px solid rgba(240,232,207,0.16);
+    border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.lk-pill:hover { background: rgba(16, 66, 57, 0.95); }
+.lk-pill-static { cursor: default; }
+.lk-pill-static:hover { background: rgba(11, 51, 44, 0.88); }
+.lk-pill-dim { opacity: 0.65; font-weight: 400; }
+.lk-hud-icons { margin-left: auto; display: flex; gap: 6px; }
+.lk-icon {
+    width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(240,232,207,0.16);
+    background: rgba(11, 51, 44, 0.88); color: #f0e8cf; font-size: 15px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.lk-icon:hover { background: rgba(16, 66, 57, 0.95); }
+
+/* district tag + hints */
+.lk-district-tag {
+    position: absolute; left: 18px; bottom: 54px; z-index: 5;
+    display: flex; flex-direction: column; text-shadow: 0 1px 6px rgba(0,0,0,0.4);
+}
+.lk-district-tag strong { font-size: 20px; font-family: Georgia, 'Times New Roman', serif; }
+.lk-hints {
+    position: absolute; left: 0; right: 0; bottom: 14px; z-index: 5;
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;
+    font-size: 12.5px; color: #f4eed6; text-shadow: 0 1px 4px rgba(0,0,0,0.45);
+}
+.lk-dot { opacity: 0.5; }
+
+/* toasts */
+.lk-toast {
+    position: static; max-width: 92vw; text-align: center; border-radius: 18px !important;
+    background: rgba(11, 51, 44, 0.94); border: 1px solid rgba(217,201,126,0.4);
+    color: #f4eed6; padding: 9px 18px; border-radius: 999px; font-size: 13.5px;
+    z-index: 30; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    animation: lk-pop 0.25s ease-out;
+}
+#toasts.is-panel .lk-toast.lk-deco { display: none; } /* panels own the screen: hide only decorative toasts; must-see feedback still floats */
+#toasts { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; z-index: 30; pointer-events: none; width: max-content; max-width: 92vw; }
+@keyframes lk-pop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* overlays */
+.lk-overlay {
+    position: absolute; inset: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: center; padding: 18px;
+    background: radial-gradient(ellipse at center, rgba(11,51,44,0.55), rgba(6,28,24,0.85));
+}
+.lk-overlay-blur { backdrop-filter: blur(6px); }
+
+/* intro */
+.lk-intro-card {
+    width: min(680px, 100%); background: #0d3f36; border: 1px solid rgba(240,232,207,0.14);
+    border-radius: 22px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+.lk-intro-head {
+    padding: 14px 20px; font-family: Georgia, 'Times New Roman', serif; font-size: 17px; color: #f4eed6;
+}
+.lk-intro-hero { position: relative; }
+.lk-intro-hero img { display: block; width: 100%; height: clamp(220px, 40vh, 360px); object-fit: cover; }
+.lk-intro-logo {
+    position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+    background: rgba(11, 51, 44, 0.9); border-radius: 16px; padding: 12px 22px;
+    font-family: Georgia, 'Times New Roman', serif; font-size: clamp(22px, 4.5vw, 34px); font-weight: 700;
+    color: #f4eed6; display: flex; flex-direction: column; align-items: center; line-height: 1.15;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35); white-space: nowrap;
+}
+.lk-logo-ml { font-size: 0.55em; letter-spacing: 0.06em; margin-top: 2px; }
+.lk-intro-actions {
+    display: flex; gap: 10px; padding: 14px 18px; align-items: center; flex-wrap: wrap;
+}
+.lk-skip { margin-left: auto; }
+
+/* buttons */
+.lk-btn {
+    border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+    border: 1px solid transparent; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+}
+.lk-btn-ghost { background: transparent; color: #f0e8cf; border-color: rgba(240,232,207,0.3); }
+.lk-btn-ghost:hover { border-color: #d9c97e; color: #fff; }
+.lk-btn-primary { background: #d9c97e; color: #0b332c; width: 100%; justify-content: center; padding: 12px; }
+.lk-btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.lk-btn-gold { background: #d9c97e; color: #0b332c; }
+
+/* panels */
+.lk-panel {
+    background: #0d3f36; border: 1px solid rgba(240,232,207,0.14); border-radius: 20px;
+    padding: 24px; box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    box-sizing: border-box; /* content-box made 92%-width side panels bleed ~19px offscreen left on phones */
+}
+.lk-onboard { width: min(420px, 100%); }
+.lk-panel-icon { font-size: 22px; margin-bottom: 6px; }
+.lk-side {
+    position: absolute; top: 0; right: 0; bottom: 0; z-index: 25;
+    width: min(380px, 92%); border-radius: 0; overflow-y: auto;
+    animation: lk-slide 0.22s ease-out;
+}
+@keyframes lk-slide { from { transform: translateX(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.lk-close {
+    position: absolute; top: 12px; right: 12px; width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(240,232,207,0.1); color: #f0e8cf; border: none; font-size: 17px; cursor: pointer;
+}
+.lk-h1 { font-family: Georgia, 'Times New Roman', serif; font-size: 27px; margin: 4px 0 8px; color: #f4eed6; font-weight: 700; }
+.lk-h1-sm { font-size: 21px; }
+.lk-h2 { font-size: 12px; letter-spacing: 0.12em; color: #d9c97e; margin: 18px 0 8px; font-weight: 700; }
+.lk-eyebrow { font-size: 11px; letter-spacing: 0.18em; color: #d9c97e; margin: 0; }
+.lk-sub { font-size: 13.5px; color: rgba(240,232,207,0.75); line-height: 1.5; margin: 0 0 10px; }
+.lk-panel .lk-sub a { color: #ffe9a8; text-decoration: underline; text-underline-offset: 2px; }
+.lk-panel .lk-sub a:focus-visible { outline: 2px solid #ffe9a8; outline-offset: 2px; border-radius: 2px; }
+.lk-label { display: block; font-size: 13px; margin: 14px 0 6px; }
+.lk-select, .lk-input {
+    width: 100%; background: #0b332c; color: #f0e8cf; border: 1px solid rgba(217,201,126,0.45);
+    border-radius: 10px; padding: 11px 12px; font-size: 14px; box-sizing: border-box;
+}
+.lk-emotes button.lk-on, .lk-moverow button.lk-on { outline: 2px solid #d9c97e; }
+#look-moves .lk-chip.lk-on { background: #d9c97e; color: #0b332c; font-weight: 700; }
+.lk-ridebtn#btn-run, .lk-ridebtn#btn-jump, .lk-ridebtn#btn-sit { min-height: 44px; touch-action: none; }
+.lk-ridebtn#btn-mic { min-height: 44px; touch-action: none; }
+.lk-ridebtn.lk-mic-live { background: #e9b949; border-color: #e9b949; color: #20302a; }
+.lk-input { margin-top: 4px; font-size: 16px; } /* 16px minimum: iOS Safari zooms the whole page into focused inputs under 16px and stays zoomed after join */
+.lk-select { font-size: 16px; } /* same iOS Safari focus-zoom trigger on selects */
+.lk-check {
+    display: flex; gap: 10px; align-items: flex-start; font-size: 12.5px; color: rgba(240,232,207,0.8);
+    border: 1px solid rgba(240,232,207,0.18); border-radius: 10px; padding: 10px 12px; margin-top: 12px; cursor: pointer;
+}
+.lk-check input { margin-top: 2px; accent-color: #d9c97e; }
+.lk-or { text-align: center; font-size: 11px; letter-spacing: 0.2em; color: rgba(240,232,207,0.45); margin: 14px 0 8px; }
+.lk-note { font-size: 11.5px; color: rgba(240,232,207,0.55); line-height: 1.5; margin: 10px 0 0; }
+.lk-error { font-size: 12px; color: #ffb4a0; margin: 8px 0 0; }
+
+/* leaderboard */
+.lk-you { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 10px 0; border-bottom: 1px solid rgba(240,232,207,0.12); }
+.lk-board { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.lk-board-row {
+    display: flex; align-items: center; gap: 12px; background: rgba(240,232,207,0.06);
+    border-radius: 10px; padding: 9px 12px; font-size: 13.5px;
+}
+.lk-board-row.is-you { background: rgba(217,201,126,0.16); border: 1px solid rgba(217,201,126,0.45); }
+.lk-rank { width: 18px; text-align: center; color: #d9c97e; font-weight: 700; }
+.lk-board-name { display: flex; flex-direction: column; line-height: 1.25; }
+.lk-board-name .lk-ml { font-size: 11.5px; }
+.lk-score { margin-left: auto; font-weight: 700; color: #d9c97e; }
+
+/* customizer */
+.lk-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.lk-chip {
+    background: rgba(240,232,207,0.08); color: #f0e8cf; border: 1px solid transparent;
+    border-radius: 999px; padding: 7px 14px; font-size: 12.5px; cursor: pointer;
+}
+.lk-chip.is-on { background: #d9c97e; color: #0b332c; font-weight: 700; }
+.lk-swatch {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+}
+.lk-swatch.is-on { border-color: #d9c97e; box-shadow: 0 0 0 2px #0d3f36, 0 0 0 4px #d9c97e; }
+.lk-look-preview { display: flex; justify-content: center; padding: 18px 0 6px; }
+.lk-actions-row { display: flex; gap: 10px; margin-top: 14px; }
+.lk-actions-row .lk-btn { flex: 1; justify-content: center; }
+
+/* help */
+.lk-help-list { list-style: none; padding: 0; margin: 10px 0; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+
+/* footnote */
+.lk-footnote {
+    padding: 12px 18px 14px; font-size: 11px; color: rgba(240,232,207,0.55); line-height: 1.55;
+    background: #0b332c;
+}
+
+.lk-city .lk-live { display: block; color: #ffd24a; font-weight: 700; font-style: normal; }
+
+#echo-pad { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 8px 0; }
+
+/* Echo Dance mobile watch: top banner instead of full-height panel so the avatar demo stays visible */
+@media (max-width: 520px) {
+  #panel-echo.echo-watch { top: 0; bottom: auto; left: 0; right: 0; width: 100%; box-sizing: border-box; max-height: 46vh; border-radius: 0 0 20px 20px; }
+  #panel-echo.echo-watch #echo-pad, #panel-echo.echo-watch #echo-picked, #panel-echo.echo-watch #echo-log { display: none; }
+}
+
+@media (max-width: 520px) {
+    .lk-hints { display: none; }
+    .lk-brand { font-size: 11px; }
+    .lk-district-tag { bottom: 44px; }
+    .lk-district-tag strong { font-size: 16px; }
+}
+
+.lk-play-wrap { position: relative; display: flex; flex-direction: column; flex: 1; }
+
+/* integrated standalone layout: full viewport, no page scroll (prevents HUD clipping) */
+html, body { height: 100%; margin: 0; }
+body { overflow: hidden; background: #0b332c; }
+.lk-root { height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; }
+.lk-stage { flex: 1; min-height: 0; }
+.lk-canvas { height: 100%; }
+.lk-overlay { overflow-y: auto; }
+.lk-hints { bottom: 48px; }
+.lk-district-tag { bottom: 88px; }
+@media (max-width: 520px) { .lk-district-tag { bottom: 122px; } }
+
+/* the hidden attribute must win over component display rules */
+[hidden] { display: none !important; }
+
+/* play area is pinned to the root box so flex content can never push the HUD off-screen */
+.lk-play-wrap { position: absolute; inset: 0; height: auto; min-height: 0; overflow: hidden; }
+.lk-stage { min-height: 0; }
+
+/* keep the mobile HUD compact so pills never overflow the edge */
+@media (max-width: 520px) {
+    .lk-pill-dim { display: none; }
+    .lk-hud { gap: 6px; padding: 10px 10px; }
+    .lk-pill { padding: 6px 10px; }
+}
+
+/* ---------- 3D world overlays ---------- */
+#labels { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 5; }
+.lk-label3d { position: absolute; transform: translate(-50%, -100%); white-space: nowrap; pointer-events: none; }
+.lk-nametag { background: rgba(10, 38, 34, .82); color: #f2f7ec; font: 600 12.5px/1.5 system-ui, sans-serif; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .18); }
+.lk-nametag span { color: #ffd98a; font-size: 11.5px; }
+.lk-nametag-remote { background: rgba(10, 38, 34, .68); }
+.lk-item-tag { background: rgba(10, 38, 34, .78); color: #ffe9a8; font: 600 13px/1.45 system-ui, sans-serif; padding: 3px 11px; border-radius: 999px; border: 1px solid rgba(255, 217, 138, .35); box-shadow: 0 3px 10px rgba(0, 0, 0, .25); }
+.lk-item-tag b { color: #ffffff; }
+.lk-popup { position: absolute; transform: translate(-50%, -50%); color: #35c46f; font: 800 26px/1 system-ui, sans-serif; text-shadow: 0 2px 0 #0a2622, 0 3px 10px rgba(0, 0, 0, .4); opacity: 1; transition: all 1.3s ease-out; pointer-events: none; z-index: 6; }
+.lk-popup.go { transform: translate(-50%, -260%); opacity: 0; }
+#joy { position: absolute; width: 110px; height: 110px; border-radius: 50%; background: rgba(10, 38, 34, .3); border: 2px solid rgba(255, 255, 255, .35); z-index: 7; pointer-events: none; }
+#joy-knob { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(255, 255, 255, .75); box-shadow: 0 2px 8px rgba(0, 0, 0, .3); }
+.lk-stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+#btn-monsoon.is-on { background: #2f5f8f; color: #cfe6f2; }
+#btn-view.is-on { background: #d9c97e; color: #0b332c; font-weight: 700; }
+
+/* Little World additions */
+.lk-goal { position: absolute; left: 20px; top: 76px; display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: rgba(16, 66, 57, .85); color: #f3ead2; font-size: 12px; z-index: 5; }
+.lk-goal-track { width: 90px; height: 8px; border-radius: 6px; background: rgba(255,255,255,.2); overflow: hidden; }
+#goal-bar { height: 100%; width: 0; background: #ffd23f; transition: width .6s; }
+.lk-emotes { position: absolute; left: 50%; transform: translateX(-50%); bottom: 54px; display: flex; gap: 6px; z-index: 5; }
+.lk-emotes button { width: 40px; height: 40px; border-radius: 50%; border: 0; font-size: 20px; background: rgba(16,66,57,.85); cursor: pointer; }
+.lk-emotes button:active { transform: scale(.9); }
+.lk-emote { font-size: 16px; }
+.lk-city-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; max-height: 60vh; overflow: auto; }
+.lk-city { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07); color: inherit; cursor: pointer; box-sizing: border-box; } /* border-box: content-box made every row 26px wider than the list (horiz scroll clipped leftmost text) */
+.lk-city.is-here { border-color: #ffd23f; }
+.lk-city span { opacity: .7; font-size: 12px; text-align: right; }
+.lk-city em { grid-column: 1 / -1; font-style: normal; font-size: 12px; opacity: .8; }
+.lk-stamp { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.05); box-sizing: border-box; }
+.lk-stamp.is-got { border-color: #ffd23f; background: rgba(255,210,63,.12); }
+.lk-stamp strong { font-size: 14px; color: #f4eed6; }
+.lk-stamp.is-got strong { color: #ffd873; }
+.lk-stamp em { grid-column: 1 / -1; font-style: normal; font-size: 12px; opacity: .8; }
+.lk-stamp .lk-mark { font-weight: 700; color: #ffd23f; }
+.lk-stamp .lk-mark.is-no { opacity: .35; color: #f4eed6; }
+@media (max-width: 640px) { .lk-goal { top: 112px; left: 12px; } .lk-emotes { bottom: 130px; left: auto; right: 12px; transform: none; flex-direction: column; } }
+
+.lk-tabs { display: flex; gap: 6px; margin: 12px 0 8px; flex-wrap: wrap; }
+.lk-tabs button { padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.2); background: transparent; color: inherit; cursor: pointer; font-size: 12px; }
+.lk-tabs button.is-on { background: #ffd23f; color: #1b3a30; border-color: #ffd23f; }
+@media (max-width: 640px) { .lk-brand { font-size: 9px; letter-spacing: .06em; } }
+
+.lk-icon { width: auto !important; min-width: 40px; padding: 0 12px; font-size: 12px; font-weight: 600; letter-spacing: .02em; border-radius: 999px !important; }
+.lk-emotes button { width: auto; min-width: 54px; height: 36px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #f3ead2; border: 1px solid rgba(255,255,255,.25); }
+.lk-emote { font-weight: 600; color: #ffd23f; }
+@media (max-width: 640px) { .lk-emotes { flex-direction: row; flex-wrap: wrap; justify-content: center; right: 8px; left: 8px; bottom: 112px; transform: none; } .lk-icon { padding: 0 8px; font-size: 11px; min-width: 34px; } }
+
+.lk-ludo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+#ludo-board { width: 100%; max-width: 340px; display: block; margin: 8px auto; touch-action: manipulation; }
+.ludo-movable { filter: drop-shadow(0 0 4px #ffd23f); animation: ludopulse 1s infinite alternate; }
+@keyframes ludopulse { to { stroke-width: 5; } }
+.lk-ludo-log { list-style: none; padding: 0; margin: 6px 0 0; font-size: 12px; opacity: .85; display: grid; gap: 2px; }
+
+.lk-voice-list { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; }
+.lk-voice-list li { display: flex; gap: 6px; align-items: center; font-size: 13px; }
+.lk-voice-list li span { flex: 1; }
+.lk-mini { padding: 4px 10px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: transparent; color: inherit; cursor: pointer; font-size: 12px; }
+
+.lk-landmark { position: absolute; left: 20px; top: 114px; padding: 5px 12px; border-radius: 999px; background: rgba(16,66,57,.85); color: #f3ead2; font-size: 12px; z-index: 5; pointer-events: none; }
+@media (max-width: 640px) { .lk-landmark { top: 150px; left: 12px; font-size: 10px; padding: 3px 9px; background: rgba(16,66,57,.6); white-space: normal; line-height: 1.3; width: fit-content; max-width: calc(100vw - 24px); box-sizing: border-box; } .lk-goal, #goal { } }
+
+@media (max-width: 640px) { .lk-district-tag { bottom: 132px !important; } .lk-footnote { font-size: 10px; line-height: 1.3; padding: 6px 10px; } }
+.lk-ride { position: absolute; right: 12px; bottom: 150px; display: flex; flex-direction: column; gap: 8px; z-index: 6; }
+.lk-ridebtn { min-width: 72px; padding: 9px 12px; border-radius: 999px; border: 0; background: rgba(16,66,57,.88); color: #f3ead2; font: 600 13px system-ui, sans-serif; cursor: pointer; }
+.lk-ridemenu { max-height: 46vh; overflow-y: auto; display: none; flex-direction: column; gap: 6px; } .lk-ridemenu.open { display: flex; } .lk-ride { align-items: flex-end; } .lk-ridemenu .lk-ridebtn { padding: 7px 12px; font-size: 12px; }
+.lk-taxipanel { box-sizing: border-box; padding: 10px; background: #103b33; border: 1px solid #72978b; border-radius: 14px; max-width: min(330px, calc(100vw - 24px)); }
+.lk-taxipanel .lk-sub { color: #f3ead2; font: 600 12px system-ui, sans-serif; text-align: left; padding: 0 2px; align-self: stretch; }
+.lk-taxipanel .lk-ridebtn { flex: 0 0 auto; min-height: 44px; max-width: 100%; white-space: normal; line-height: 1.35; text-align: left; height: auto; }
+.lk-ridebtn.is-on { background: #d7b24a; color: #18332e; }
+@media (max-width: 640px) { .lk-ride { bottom: 190px; } }
+@media (min-width: 641px) { .lk-emotes { bottom: 122px; } .lk-hints { bottom: 90px; } .lk-ride { bottom: 170px; } .lk-district-tag { bottom: 122px; } }
+@media (max-width: 640px) { .lk-hud-icons { margin-left: 0; width: 100%; gap: 3px; } .lk-hud-icons .lk-icon { padding: 0 6px; font-size: 10px; min-width: 0; height: 32px; } }
+
+.lk-intro-caption { margin: 0; padding: 6px 16px; font-size: 12px; color: #cfd8cf; background: rgba(0,0,0,.18); }
+
+.lk-world-map { width: 100%; height: auto; border-radius: 12px; margin-top: 10px; display: block; background: #12394a; }
+.lk-world-map g:focus { outline: none; } .lk-world-map g:focus circle:first-of-type { stroke: #ffd23f; stroke-width: 1.6; }
+.lk-footnote a { color: #f0e8cf; text-decoration: underline; margin-left: 6px; }
+@media (max-width: 640px) { .lk-district-tag { bottom: 200px !important; left: 14px; } }
+
+.lk-enterbtn { background: #d7b24a; color: #18332e; min-width: 110px; box-shadow: 0 2px 10px rgba(0,0,0,.35); }
+@media (max-width: 640px) { #toasts { top: 178px; } }
+
+#gas { position: absolute; left: 18px; bottom: 176px; width: 132px; height: 20px; border-radius: 8px; background: rgba(8,40,36,.7); border: 1px solid rgba(255,255,255,.35); overflow: hidden; z-index: 20; pointer-events: none; }
+#gas i { display: block; height: 100%; background: #4de8ff; transition: width .15s; }
+#gas.low i { background: #ffb347; }
+#gas span { position: absolute; inset: 0; font: 700 11px/20px system-ui, sans-serif; color: #fff; text-align: center; text-shadow: 0 0 3px #000; }
+
+#look-outfitvars { margin-top: 8px; }
+#look-outfitvars:empty { display: none; }
+.lk-chip.lk-chip-swatch { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+.lk-chip.lk-chip-swatch.is-on { border-color: #d9c97e; box-shadow: 0 0 0 2px #0d3f36, 0 0 0 4px #d9c97e; }
+.lk-look-preview { padding: 4px 0 2px; }
+.lk-ev{display:flex;flex-direction:column;gap:2px;padding:10px 12px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.07);list-style:none}
+.lk-ev span{opacity:.8;font-size:.9em}.lk-ev.is-live{outline:2px solid #e8c15a}
+#events-list{padding:0;margin:8px 0}
+.lk-ev-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.lk-ev-row .lk-btn{padding:6px 12px;font-size:.9em}
+
+.lk-moverow { position: absolute; left: 50%; transform: translateX(-50%); bottom: 168px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 92vw; z-index: 5; }
+.lk-moverow[hidden] { display: none; }
+.lk-moverow button, #moreMoves { min-width: 54px; height: 36px; padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 600; color: #f3ead2; background: rgba(16,66,57,.9); border: 1px solid rgba(255,255,255,.25); cursor: pointer; }
+@media (max-width: 640px) { .lk-moverow { bottom: 190px; } }
+@media (min-width: 641px) { .lk-moverow { bottom: 172px; } }
+
+#journey { position: fixed; inset: 0; z-index: 60; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #f3ead2; text-align: center; }
+#journey[hidden] { display: none; }
+.lk-j-sky { position: absolute; inset: 0; background: linear-gradient(#0f2f4a, #2f7fb0 55%, #f0c88a); }
+#journey.sea .lk-j-sky { background: linear-gradient(#7fc4ea, #2f9fd0 55%, #0f4f73); }
+.lk-j-vehicle { position: absolute; left: -30%; top: 40%; width: 120px; height: 56px; animation: lkfly var(--jt, 5s) linear forwards; filter: drop-shadow(0 6px 6px rgba(0,0,0,.35)); }
+.lk-j-vehicle svg { width: 100%; height: 100%; }
+@keyframes lkfly { from { left: -30%; transform: translateY(0); } 50% { transform: translateY(-18px); } to { left: 125%; transform: translateY(6px); } }
+.lk-j-text { position: relative; font: 600 22px Georgia, serif; margin: 0 16px; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+.lk-j-sub { position: relative; font: 14px system-ui, sans-serif; opacity: .9; margin: 6px 16px 0; }
+
+/* Freeze Beat */
+#freeze-big { min-height: 56px; font-size: 30px; font-weight: 800; text-align: center; margin: 8px 0; color: #ffd24a; }
+#freeze-big.freeze-stopcue { color: #ff5a5a; animation: freezePulse .45s ease-in-out infinite alternate; }
+#freeze-big.freeze-playcue { color: #7ee2a8; }
+.lk-freeze-tap { font-size: 20px; font-weight: 800; padding: 14px 34px; min-height: 56px; }
+.lk-freeze-tap:not(:disabled) { animation: freezePulse .45s ease-in-out infinite alternate; }
+@keyframes freezePulse { from { transform: scale(1); } to { transform: scale(1.07); } }
+@media (prefers-reduced-motion: reduce) { #freeze-big.freeze-stopcue, .lk-freeze-tap:not(:disabled) { animation: none; } }
+@media (max-width: 520px) {
+  #panel-freeze.freeze-live { top: 0; bottom: auto; left: 0; right: 0; width: 100%; box-sizing: border-box; max-height: 52vh; border-radius: 0 0 20px 20px; overflow-y: auto; }
+  #panel-freeze.freeze-live #freeze-log { display: none; }
+}
+
+/* Games menu */
+.lk-gamecards { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.lk-gamecard { text-align: left; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 14px; padding: 12px 14px; cursor: pointer; color: inherit; font: inherit; display: flex; flex-direction: column; gap: 4px; }
+.lk-gamecard strong { font-size: 16px; color: #ffd24a; }
+.lk-gamecard span { font-size: 13px; opacity: .85; line-height: 1.35; }
+.lk-gamecard:active, .lk-gamecard:focus-visible { border-color: #ffd24a; outline: none; }
+
+.lk-arrival { position: absolute; top: 108px; left: 50%; transform: translateX(-50%); z-index: 31; pointer-events: none; text-align: center; background: #0b332c; border: 1px solid rgba(217,201,126,0.55); border-radius: 16px; padding: 12px 22px; max-width: 92vw; box-shadow: 0 8px 28px rgba(0,0,0,0.35); animation: lk-pop 0.3s ease-out; }
+.lk-arrival #la-name { color: #ffd873; font-size: 17px; font-weight: 700; letter-spacing: .3px; }
+.lk-arrival #la-sub { color: #f4eed6; font-size: 12.5px; margin-top: 3px; opacity: .9; }
+@media (max-width: 640px) { .lk-arrival { top: 210px; left: 12px; right: 12px; transform: none; max-width: none; padding: 10px 14px; border-radius: 14px; } .lk-arrival #la-name { font-size: 15px; } .lk-arrival #la-sub { font-size: 11.5px; } }
+
+/* Local wayfinding: no remote positions or automatic movement. */
+#local-map { display:block; width:100%; height:auto; margin:14px 0; border-radius:12px; }
+#localmap-select { width:100%; box-sizing:border-box; font-size:16px; margin:8px 0 14px; min-height:44px; }
+#map-marker { width:max-content; box-sizing:border-box; position:fixed; left:50%; bottom:44px; transform:translateX(-50%); z-index:14; max-width:calc(100% - 28px); padding:10px 14px; display:flex; align-items:center; gap:10px; border:1px solid #d5b96b; border-radius:14px; background:#0d3f36; color:#fff1c8; font:600 12px/1.4 system-ui; text-align:left; }
+#map-marker[hidden] { display:none; } #map-marker-arrow { display:inline-block; font-size:23px; flex-shrink:0; } #map-marker-text { overflow-wrap:anywhere; }
+.lk-side:not([hidden]) ~ #map-marker { visibility:hidden; }
+
+/* One-Menu mobile collapse: utility row + emotes live in a single Menu sheet on narrow screens */
+#btn-menu[hidden], .lk-mmenu[hidden] { display: none !important; }
+#btn-menu { margin-left: auto; }
+.lk-mmenu { position: absolute; top: 56px; right: 10px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; background: rgba(13,48,41,.97); border: 1px solid rgba(255,255,255,.18); max-width: calc(100vw - 20px); box-sizing: border-box; }
+.lk-mmenu-sec { display: flex; flex-wrap: wrap; gap: 6px; }
+.lk-mmenu button { min-width: 54px; height: 36px; padding: 0 12px; border-radius: 999px !important; border: 1px solid rgba(255,255,255,.25); background: rgba(16,66,57,.85); color: #f3ead2; font-size: 12px; font-weight: 600; cursor: pointer; }
+.lk-mmenu button.lk-on { outline: 2px solid #d9c97e; }
+.lk-mmenu #btn-monsoon.is-on { background: #2f5f8f; color: #cfe6f2; }
+.lk-mmenu #btn-view.is-on { background: #d9c97e; color: #0b332c; font-weight: 700; }
+.lk-mmenu-on .lk-hud-icons, .lk-mmenu-on .lk-emotes { display: none; }
+@media (max-width: 640px) { .lk-mmenu-on .lk-goal { top: 60px; } .lk-mmenu-on .lk-landmark { top: 98px; } }
+
+/* Taxi choices scroll independently without lifting movement controls over the HUD. */
+#taxi-panel.open { position: fixed; right: 12px; top: 160px; bottom: 74px; max-height: none; width: min(350px, calc(100vw - 24px)); overscroll-behavior: contain; }
+@media (min-width: 641px) { #taxi-panel.open { top: 170px; bottom: 150px; } }
+
+#travel-list > li[hidden] { display: none; }
+#travel-results { margin: 8px 0 0; min-height: 1.5em; }
+
+/* Update 123: district rows sit visually under their parent city - indented with an accent rail, not a peer city */
+.lk-city.lk-district { margin-left: 18px; width: calc(100% - 18px); border-left: 3px solid #ff8a4c; grid-template-columns: 1fr; }
+.lk-city.lk-district span { text-align: left; }
+.lk-city strong, .lk-city span { min-width: 0; } /* let grid shrink below min-content instead of overflowing */
+/* Update 124: on phone-width screens every travel row stacks - full-width place name, meta beneath */
+@media (max-width: 640px) { .lk-city { grid-template-columns: 1fr; } .lk-city span { text-align: left; } }
+/*211 map view controls: touch targets and keyboard focus match the existing panel. */
+.map-view-controls button { min-width:44px; min-height:44px; padding:8px 12px; border-radius:22px; border:1px solid #7ea294; background:#164d42; color:#f4eedc; font:inherit; cursor:pointer; }
+.map-view-controls button:disabled { opacity:.4; cursor:default; }
+.map-view-controls button:focus-visible { outline:3px solid #f3ddab; outline-offset:2px; }
+.map-view-controls { font-size:14px; }
+
+/*217: small original illustrated in-game banner. Media loads only on request, never gates startup. */
+.lk-explore-trigger { background: #c9b875 !important; color: #143e35 !important; }
+.lk-explore-art { display:block; margin:16px 0 8px; border-radius:14px; overflow:hidden; background:#22584f; aspect-ratio:16/9; }
+.lk-explore-art img { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:cover; }
+.lk-explore-actions { display:flex;flex-direction:column;gap:12px;margin-top:20px; }
+.lk-explore-actions button { min-height:48px; }
+
+.lk-explore-map-title { margin:18px 0 8px;font-size:17px; }
+.lk-explore-map-preview { display:block;width:100%;padding:0;border:1px solid #73a89a;border-radius:12px;overflow:hidden;background:#123e35;color:#f4eed6;cursor:pointer;text-align:left; }
+.lk-explore-map-preview canvas { display:block;width:100%;height:auto; }
+.lk-explore-map-preview span { display:block;padding:10px 12px;font-size:14px; }
+#panel-explore .lk-explore-art { margin-top:12px; }
+#panel-explore .lk-explore-actions { margin-top:12px;gap:8px; }
+
+#discovery-hud { position:absolute;left:18px;top:150px;max-width:340px;padding:14px;border-radius:16px;background:rgba(13,63,54,.95);color:#f4eed6;z-index:19;box-shadow:0 6px 20px #0003; }
+#discovery-hud strong {display:block;font-size:18px;margin-top:6px;}
+#discovery-hud small {font-size:10px;letter-spacing:.08em;color:#d2c67f;}
+#discovery-hud p {font-size:13px;line-height:1.45;margin:7px 0;}
+#discovery-hud button {min-height:44px;border:1px solid #719084;border-radius:22px;color:#f4eed6;background:#174e41;padding:6px 14px;cursor:pointer;}
+#discovery-stop {position:absolute;right:8px;top:4px;}
+body:has(.lk-side:not([hidden])) #discovery-hud {visibility:hidden;}
+@media(max-width:640px){#discovery-hud {top:138px;left:10px;right:10px;max-width:none;padding:10px 14px;}#discovery-hud strong{padding-right:40px;} }
+
+#discovery-answers {display:flex;flex-direction:column;gap:7px;margin:8px 0;}
+#discovery-answers button {text-align:left;}
+#discovery-inspect {margin:4px 8px 4px 0;background:#d1bd77!important;color:#153c33!important;}
+#discovery-inspect:disabled {opacity:.65;cursor:default;}
+#discovery-feedback {color:#f1dfa4;}
+@media(max-width:640px){#discovery-hud {max-height:calc(100dvh - 300px);overflow-y:auto;}}
+
+/*Observation choices temporarily own the touch-action area; Look around restores the small clue HUD.*/
+body:has(#discovery-question:not([hidden])) #btn-run,
+body:has(#discovery-question:not([hidden])) #btn-jump,
+body:has(#discovery-question:not([hidden])) #btn-sit,
+body:has(#discovery-question:not([hidden])) #btn-ride {visibility:hidden;}
+
+@media(max-width:640px){
+ #discovery-hud.is-compact {top:140px;left:10px;right:auto;padding:5px;border-radius:24px;max-width:190px;background:#0d3f36;}
+ #discovery-hud.is-compact > :not(#discovery-expand) {display:none!important;}
+ #discovery-expand {min-height:44px;}
+}
+
+#discovery-minimize {display:none;}
+@media(max-width:640px){#discovery-minimize{display:block;margin:0 45px 8px 0;} }
+
+.discovery-journal-card {border:1px solid #719084;border-radius:12px;padding:10px 14px;margin:12px 0;background:#123f35;}
+.discovery-journal-card h3 {font-size:16px;margin:0 0 8px;}
+.discovery-journal-card p {font-size:14px;line-height:1.5;margin:0;}
+#discovery-continue {margin:8px 0 18px;}
+
+.discovery-journal-card .discovery-observation {margin-top:10px;color:#f0dc9b;font-size:13px;}
+.discovery-ending {border-color:#d3bc72;}
+
+/*269 persistent recovery notice, never covers the movement controls.*/
+#collect-recovery {position:fixed;z-index:120;left:12px;top:130px;max-width:290px;padding:14px;border-radius:14px;background:#123f35;color:#fff4cf;box-shadow:0 4px 20px #0005;font:14px/1.4 system-ui;}
+#collect-recovery[hidden] {display:none;}
+#collect-recovery p {margin:8px 0;}
+#collect-retry {min-height:44px;padding:8px 14px;border:0;border-radius:9px;background:#e5ce88;color:#153c33;font:600 14px system-ui;}
+#collect-retry:disabled {opacity:.6;}
+
+/* Voice consent copy must never sit beneath transient gameplay feedback. */
+#voice-feedback #toasts { position:static;transform:none;width:auto;max-width:100%;margin:0 0 14px;align-items:stretch; }
+#voice-feedback #toasts .lk-toast { max-width:100%; }
+
+/*282 full destination search, route checks only for displayed stops. */
+.lk-taxisearch { box-sizing:border-box;width:100%;min-height:44px;border:1px solid #8fae9e;border-radius:12px;padding:9px 12px;background:#f3ead2;color:#18332e;font:14px system-ui,sans-serif; }
+.lk-taxidestinations { display:flex;flex-direction:column;gap:6px; }
+.lk-taxidestinations .lk-ridebtn:disabled { opacity:.45;cursor:default; }
+.lk-taxipanel > :not(.lk-taxidestinations) { flex:0 0 auto; }
+.lk-taxidestinations { min-height:0;overflow-y:auto;overscroll-behavior:contain; }
+/* On-stage actions stay in reach without opening the mobile Menu. */
+#stage-chip { position:fixed;left:50%;bottom:172px;transform:translateX(-50%);background:#1e2430ee;color:#fff;padding:10px 12px;border-radius:18px;font-size:14px;z-index:30;align-items:center;justify-content:center;gap:8px;max-width:min(520px,90vw);text-align:center;flex-wrap:wrap;box-sizing:border-box; }
+#stage-chip span { flex-basis:100%;overflow-wrap:anywhere; }
+#stage-chip button { min-height:44px;padding:8px 14px;border:0;border-radius:14px;background:#ffd24a;color:#3a2c00;font-weight:600;cursor:pointer; }
+@media(max-width:640px) { #stage-chip { left:12px;right:92px;transform:none;max-width:none; } }
+
+/*300 visible active-taxi exit, same touch target as nearby ride controls. */
+#btn-endtaxi { min-height:44px;max-width:104px;height:auto;padding:8px 12px;white-space:normal;line-height:1.2;background:#f3d48b;color:#173d34; }
+#btn-endtaxi[hidden] { display:none; }
+
+/* Echo feedback occupies its own flow space, never the recall controls. */
+#echo-feedback #toasts { position:static;transform:none;width:auto;max-width:100%;margin:0 0 14px;align-items:stretch; }
+#echo-feedback #toasts .lk-toast { max-width:100%; }
+#echo-submit:disabled { opacity:.4;cursor:not-allowed;filter:grayscale(1); }
+
+#stage-chip select { min-height:44px;max-width:100%;padding:8px;border-radius:10px;background:#1e2430;color:#fff;border:1px solid #798390;font:inherit; }
+#stage-chip small { flex-basis:100%;font-size:11px;color:#c5ceda; }
+
+#football-practice { position:fixed;left:12px;right:92px;bottom:172px;z-index:29;background:#123d34f2;color:#fff;padding:12px;border-radius:18px;display:flex;flex-wrap:wrap;gap:8px; }
+#football-practice[hidden] { display:none; }
+#football-practice strong,#football-practice span,#football-practice small { flex-basis:100%; }
+#football-practice span { font-size:13px; } #football-practice small { font-size:11px;color:#c5dbd2; }
+#football-practice button { min-height:44px;border:0;border-radius:12px;padding:8px 12px;background:#ffda69;color:#203b2d;font-weight:600; }
+@media(min-width:641px){#football-practice{right:auto;max-width:390px;}}
+
+#drive-practice{position:fixed;left:12px;right:92px;bottom:172px;z-index:12;max-width:390px;background:#124d3eeb;color:#fff;border-radius:18px;padding:12px;display:flex;gap:7px;flex-wrap:wrap}#drive-practice[hidden]{display:none}#drive-practice strong,#drive-practice span,#drive-practice small{width:100%}#drive-practice span{font-size:13px}#drive-practice small{font-size:11px;color:#bfd5ce}#drive-practice button{min-height:44px;border:0;border-radius:12px;background:#ffdc58;color:#183c31;padding:10px 12px;font-weight:700}#drive-practice button[hidden]{display:none}
+
+/*333 Bounded player labels. Full name stays in DOM; long visible text ellipsizes. */
+.lk-nametag{box-sizing:border-box;overflow:hidden;text-overflow:ellipsis}
+
+/*334 Side panels and phone Menu own controls, not floating world actions. */
+body:is(.lk-panel-open,.lk-menu-open,.lk-gate-open) :is(#stage-chip,#football-practice,#drive-practice){visibility:hidden;pointer-events:none}
+
+body:is(.lk-panel-open,.lk-gate-open) :is(#ride-bar,#labels,.lk-hud,.lk-goal,#landmark-hint,#district-tag,#footnote){visibility:hidden;pointer-events:none}
+body.lk-menu-open :is(#ride-bar,#discovery-hud){visibility:hidden;pointer-events:none}
+
+#taxi-status{position:fixed;bottom:172px;left:12px;right:124px;max-width:390px;z-index:15;box-sizing:border-box;padding:10px 12px;border-radius:14px;background:#0d3f36f2;color:#fff1c8;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font:600 13px/1.4 system-ui}#taxi-status[hidden]{display:none}#taxi-status span,#taxi-status small{flex-basis:100%;overflow-wrap:anywhere}#taxi-status small{font-size:11px;font-weight:400}#taxi-status button{min-height:44px;padding:8px 12px;border:0;border-radius:12px;background:#ffdc58;color:#183c31;font-weight:700}#taxi-status button[hidden]{display:none}body:is(.lk-panel-open,.lk-menu-open,.lk-gate-open) #taxi-status{visibility:hidden;pointer-events:none}
+
+body.lk-ride-open :is(#stage-chip,#football-practice,#drive-practice,#taxi-status){visibility:hidden;pointer-events:none}
+body.lk-ride-open #ride-bar>button:not(#btn-ride){visibility:hidden;pointer-events:none}
+
+#voice-intro button:disabled{opacity:.45;cursor:wait}
+
+#drive-practice select{min-height:44px;max-width:100%;padding:8px;border-radius:10px;background:#fff1c8;color:#183c31;font:600 12px system-ui}#drive-practice select:disabled{opacity:1;color:#183c31}
+
+#discovery-collection {border:1px solid #d3bc72;border-radius:12px;padding:12px;margin:14px 0;background:#123f35;}
+#discovery-collection h3 {font-size:17px;margin:0 0 8px;}
+#discovery-collection p {font-size:14px;line-height:1.45;}
+#discovery-collection details {border-top:1px solid #719084;padding:10px 0;}
+#discovery-collection summary {cursor:pointer;min-height:28px;font-weight:600;}
+#discovery-collection h4 {font-size:15px;margin:12px 0 6px;}
+
+#graphics-recovery{position:fixed;z-index:200;left:16px;right:16px;top:34%;max-width:400px;margin:auto;padding:20px;border-radius:18px;background:#123f35;color:#fff4cf;box-shadow:0 6px 30px #0007;font:15px/1.5 system-ui}#graphics-recovery[hidden]{display:none}#graphics-recovery p{margin:8px 0 0}body.lk-graphics-down #play{pointer-events:none}
+body.lk-graphics-down :is(#ride-bar,#labels,#stage-chip,#football-practice,#drive-practice,#taxi-status,#joy,#district-tag,#discovery-hud){visibility:hidden;pointer-events:none}
+
+#panel-events button:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+
+/* social (SOCIAL flag only; panel stays hidden and unwired when off) */
+.lk-dm-thread { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 6px; max-height: 40vh; overflow-y: auto; }
+.lk-dm-thread li { padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.08); font-size: 13px; max-width: 85%; overflow-wrap: anywhere; }
+.lk-dm-thread li.me { justify-self: end; background: rgba(214,170,60,.25); }
+.lk-dm-form { display: flex; gap: 6px; } .lk-dm-form input { flex: 1; min-width: 0; padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.2); color: inherit; font-size: 16px; }
+.lk-dm-safety { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; } .lk-dm-safety select { min-width: 0; max-width: 100%; padding: 4px 6px; border-radius: 8px; font-size: 12px; }
+.lk-tap, .lk-dm-safety .lk-mini, .lk-dm-safety select, .lk-dm-form .lk-btn, .lk-dm-form input { min-height: 44px; }
+.lk-tap { min-width: 44px; padding: 8px 16px; } .lk-dm-safety .lk-mini { padding: 8px 16px; min-width: 44px; } #dm-older { width: 100%; margin-top: 8px; }
+.lk-dm-form .lk-btn { padding: 10px 16px; justify-content: center; }
+.lk-voice-list li { flex-wrap: wrap; }
+#dm-blocked-list li { display: flex; gap: 8px; align-items: center; justify-content: space-between; max-width: 100%; } #dm-blocked-list li span { overflow-wrap: anywhere; } #voice-blocked { margin-top: 12px; }
+.lk-dm-safety .lk-mini, #dm-unblock { min-height: 44px; }
+
+#dm-thread li .dm-del{display:inline-block;margin-left:8px;min-height:44px;min-width:44px;padding:0 10px;font-size:12px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:10px;opacity:.75}
+.lk-dm-thread li.me{display:flex;align-items:center;justify-content:flex-end}
+
+#dm-send:disabled{opacity:.45;cursor:not-allowed}
+
+#dm-inbox-list li{max-width:100%;padding:0} .lk-inbox-chat{display:grid;gap:6px;width:100%;text-align:left;background:transparent;color:inherit;border:0;padding:12px;font:inherit;min-height:60px}.lk-inbox-chat span{font-size:13px;max-height:3em;overflow:hidden;overflow-wrap:anywhere}#dm-inbox-back{margin-bottom:8px}
+
+/* Active football keeps the pitch clear; reset/end and instructions remain in Options. */
+#football-practice.active{bottom:80px;padding:8px 10px;gap:6px;right:92px;max-width:390px}
+#football-practice.active:not(.expanded)>strong,#football-practice.active:not(.expanded)>small,#football-practice.active:not(.expanded)>button:nth-of-type(2),#football-practice.active:not(.expanded)>button:nth-of-type(3){display:none}
+#football-practice.active>span{font-size:12px}
+#football-practice.active>button{padding:8px 10px}
+#football-practice button[hidden]{display:none}
+
+#world-connection{position:fixed;left:12px;right:92px;top:142px;max-width:420px;z-index:31;padding:10px 12px;border-radius:14px;background:#493b16f5;color:#fff3ce;font:12px/1.4 system-ui;box-sizing:border-box}#world-connection[hidden]{display:none}#world-connection span{display:block}#world-connection button{margin-top:6px;min-height:44px;border:0;border-radius:10px;padding:8px 12px;background:#ffdc58;color:#183c31;font-weight:700}body:is(.lk-panel-open,.lk-menu-open,.lk-ride-open,.lk-gate-open,.lk-graphics-down) #world-connection{visibility:hidden;pointer-events:none}
+
+/* Short landscape keeps recovery separate from active stage controls. */
+@media(max-height:500px) and (orientation:landscape){
+ .lk-mmenu-on .lk-goal{top:54px}.lk-mmenu-on .lk-landmark{top:88px;max-width:calc(100vw - 110px)}
+ .lk-mmenu{max-height:calc(100dvh - 72px);overflow-y:auto;max-width:calc(100vw - 110px)}
+ #world-connection{top:126px;left:12px;right:auto;width:calc((100vw - 116px)/2);max-width:none;max-height:calc(100dvh - 176px);overflow-y:auto}
+ #stage-chip{top:126px;bottom:50px;left:calc((100vw - 116px)/2 + 24px);right:92px;transform:none;max-width:none;max-height:none;overflow-y:auto;align-content:flex-start;padding:8px;gap:6px;font-size:12px}
+ #stage-chip small{font-size:10px}#stage-chip select,#stage-chip button{min-height:44px}
+ .lk-district-tag,.lk-hints{display:none}
+}
+@media(max-height:500px) and (orientation:landscape){
+ .lk-ride{top:60px;bottom:auto;max-height:calc(100dvh - 110px);overflow-y:auto}
+ #stage-chip{bottom:auto;max-height:calc(100dvh - 176px)}
+ #stage-chip small{min-width:0;overflow-wrap:anywhere}
+}
+@media(max-height:500px) and (orientation:landscape){#stage-chip small{flex:0 0 100%;width:100%;white-space:normal}}
+@media(max-height:500px) and (orientation:landscape){
+ #taxi-status{top:126px;bottom:auto;left:calc((100vw - 116px)/2 + 24px);right:92px;max-width:none;max-height:calc(100dvh - 176px);overflow-y:auto;padding:8px;font-size:12px;gap:6px}
+}
+
+/* Reserve the wider Get out lane beside driving practice. */
+#drive-practice{right:132px;box-sizing:border-box}
+@media(max-height:500px) and (orientation:landscape){
+ #drive-practice{top:126px;bottom:auto;max-height:calc(100dvh - 176px);overflow-y:auto}
+}
+#btn-enter{min-height:44px}
+
+/* Keep the live course cue small while steering; detail controls are explicit. */
+#drive-practice.active:not(.expanded)>:is(strong,small,select){display:none}
+#drive-practice.active:not(.expanded)>button:not(.practice-options){display:none}
+#drive-practice.active:not(.expanded)>span{width:auto;flex:1;min-width:80px;align-self:center}
+#drive-practice.active:not(.expanded){padding:8px;gap:6px;align-items:center}
+/* On narrow portrait, keep the cue below the driven car instead of across its wheels. */
+@media(max-width:360px) and (orientation:portrait){
+ #drive-practice.active:not(.expanded){bottom:80px}
+}
+
+/* Page-only opt-in scene text reduction, never hides actions or warnings. */
+body.lk-scene-text-hidden :is(.lk-goal,#landmark-hint,.lk-hints,#district-tag){visibility:hidden;pointer-events:none}
+#btn-scene-details{min-height:44px;height:auto}
+
+/* Crossing instructions/beacon cue are operational, not optional city text. */
+body.lk-scene-text-hidden.lk-crossing-scene :is(#landmark-hint,.lk-hints){visibility:visible;pointer-events:auto}
+/*504 Short screens keep the active football cue and actions in one row. */
+@media (max-height:500px) and (min-width:501px){
+ #football-practice.active:not(.expanded){align-items:center;box-sizing:border-box}
+ #football-practice.active:not(.expanded)>span{flex-basis:auto;flex:1;min-width:140px}
+}
+
+/*511 Short-screen nearby offers stay below the scene until details are requested. */
+@media(max-height:500px) and (orientation:landscape){
+ #drive-practice:not(.active):not(.expanded){top:auto;bottom:80px;padding:8px;gap:6px;align-items:center;width:max-content;max-width:calc(100vw - 144px)}
+ #drive-practice:not(.active):not(.expanded)>:is(strong,span,small,select){display:none}
+}
+/*522 Portrait offers also leave the car/road clear until details are requested. */
+@media(min-height:501px) and (orientation:portrait){
+ #drive-practice:not(.active):not(.expanded){padding:8px;gap:6px;align-items:center;width:max-content;max-width:calc(100vw - 144px)}
+ #drive-practice:not(.active):not(.expanded)>:is(strong,span,small,select){display:none}
+}
+
+/* Play-first entry and world-first controls, shared across touch and keyboard screens. */
+.lk-home-copy{padding:16px 22px 0}.lk-home-copy h1{margin:0 0 6px;font:700 25px/1.2 Georgia,serif;color:#fff2ce}.lk-home-copy p{margin:0;color:#e5eadc;font-size:14px;line-height:1.5}
+.lk-intro-card{max-height:calc(100dvh - 32px);overflow-y:auto}.lk-intro-hero img{height:clamp(180px,32vh,290px)}
+.lk-intro-actions{padding:16px 22px 22px;flex-direction:column;align-items:stretch;gap:12px}
+#intro-skip{justify-content:center;min-height:52px;font-size:17px;background:#f2d675;color:#153d33}
+.lk-home-share summary{min-height:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:#d6e3d9}.lk-home-share>div{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+#btn-menu{min-width:64px;width:auto;height:44px;padding:0 14px;border-radius:24px;font-size:13px}
+.lk-mmenu{width:360px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 76px);overflow:auto;padding:18px;gap:10px;box-shadow:0 16px 48px #0005;overscroll-behavior:contain}
+.lk-mmenu header{display:flex;align-items:center;justify-content:space-between;gap:12px}.lk-mmenu h2{margin:0;font:700 22px Georgia,serif}.lk-mmenu h3{margin:8px 0 0;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#decf8f}.lk-mmenu p{margin:8px 0 0;font-size:12px;line-height:1.6;color:#c5d4ca}
+.lk-mmenu .lk-mmenu-sec{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lk-mmenu button{min-height:44px;height:auto;min-width:0;font-size:12px;padding:8px;border-radius:12px!important;overflow-wrap:anywhere}
+.lk-mmenu button:focus-visible,#btn-menu:focus-visible,.lk-ridebtn:focus-visible{outline:3px solid #ffe7a1;outline-offset:3px}
+.lk-mmenu #menu-close{border:0;background:#286251;min-width:100px}.lk-mmenu #btn-sit{width:auto}
+#ride-bar{top:auto;right:12px;bottom:84px;max-width:250px;max-height:calc(100dvh - 170px);display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:8px;overflow:visible}
+#ride-bar>button{min-height:48px;min-width:70px;padding:10px 12px;border:1px solid #ffffff30;box-shadow:0 3px 10px #0002}
+#ride-menu.open{position:fixed;right:12px;top:100px;bottom:148px;width:min(310px,calc(100vw - 24px));max-height:none;padding:12px;border-radius:18px;background:#103e35f5;box-shadow:0 10px 40px #0005;box-sizing:border-box}
+.lk-mmenu-on .lk-goal{top:66px}.lk-mmenu-on .lk-landmark{top:104px}
+@media(min-width:641px){#ride-bar{bottom:82px}.lk-mmenu{right:16px}.lk-mmenu-on .lk-hints{bottom:36px}.lk-mmenu-on .lk-district-tag{bottom:72px}}
+@media(max-height:500px) and (orientation:landscape){#ride-bar{top:auto;bottom:48px;max-width:240px}.lk-mmenu{max-width:min(500px,calc(100vw - 24px));width:500px;top:60px;max-height:calc(100dvh - 72px)}.lk-mmenu .lk-mmenu-sec{grid-template-columns:repeat(4,minmax(0,1fr))}#ride-menu.open{top:60px;bottom:60px}.lk-mmenu-on .lk-goal{top:62px}.lk-mmenu-on .lk-landmark{top:98px}}
+
+/* Clothing studio uses one live preview, not a WebGL renderer per catalog card. */
+#look-preview{width:240px;height:240px;max-width:100%;margin:10px auto 4px;border-radius:20px;background:radial-gradient(ellipse at 50% 75%,#639b8266,transparent 65%)}
+#look-preview canvas{display:block;max-width:100%;height:auto;margin:auto}#look-motion{justify-content:center;margin-bottom:12px}#look-motion button{min-height:44px;min-width:68px}
+#look-selection{padding:10px 12px;border-radius:12px;background:#ffffff0c;line-height:1.6}
+.lk-wardrobe-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 10px}.lk-wardrobe-heading h2{margin:0}.lk-wardrobe-heading button{min-height:44px;max-width:170px}
+.lk-wardrobe{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.lk-style-card{text-align:left;display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border:1px solid #ffffff30;border-radius:16px;background:#ffffff08;color:#f4eed6;font:inherit;cursor:pointer;min-height:164px;overflow-wrap:anywhere}
+.lk-style-card strong{font-size:16px}.lk-style-card span{font-size:12px;line-height:1.45;color:#d1dace}.lk-style-card small{font-size:11px;color:#dfd08f;margin-top:auto}.lk-style-card.is-on{border:2px solid #ead48c;background:#ead48c16;padding:13px}.lk-style-card:focus-visible{outline:3px solid #ffe8ad;outline-offset:3px}
+.lk-style-palette{display:flex;gap:5px}.lk-style-palette i{width:20px;height:20px;border-radius:50%;border:1px solid #ffffff50}
+.lk-look-custom{margin:20px 0;border-top:1px solid #ffffff25;padding-top:8px}.lk-look-custom summary{min-height:48px;display:flex;align-items:center;cursor:pointer;color:#ead68e;font-size:13px;font-weight:700}
+@media(max-width:340px){.lk-wardrobe{grid-template-columns:1fr}}
+
+#panel-look>.lk-eyebrow{padding-right:28px;line-height:1.6;letter-spacing:.1em;font-size:10px;overflow-wrap:anywhere}
+#panel-look>.lk-actions-row{position:sticky;bottom:-24px;z-index:3;background:#0d3f36f5;padding:12px 0 20px;margin-bottom:-16px;border-top:1px solid #ffffff25;box-shadow:0 -10px 18px #0d3f36b0}
+#look-outfitvars button{min-height:44px}
+
+/* Regional affiliation is optional, not the global join identity. */
+.lk-regional-choice{margin:10px 0}.lk-regional-choice summary{min-height:44px;display:flex;align-items:center;cursor:pointer;gap:8px;font-size:14px;color:#e5eadc}.lk-regional-choice summary::before{content:"+";font-weight:700}.lk-regional-choice[open] summary::before{content:"-"}
+
+/* Optional connected outing lives in Explore, not over the world camera. */
+.city-outing{padding:16px;border:1px solid #e9c97d;border-radius:16px;background:#154b40;margin:14px 0 18px;}
+.city-outing h3{font-size:21px;margin:4px 0 10px;}
+.city-outing ol{padding-left:24px;margin:16px 0;}
+.city-outing li{padding:5px 0 5px 4px;color:#d1e4dc;font-size:15px;line-height:1.45;}
+.city-outing li.is-current{color:#ffe4a2;font-weight:650;}
+.city-outing li.is-done{color:#b2dcca;}
+.city-outing li p{font-size:14px;font-weight:400;margin:6px 0;color:#e1eee8;line-height:1.5;}
+.outing-actions{display:grid;gap:8px;margin:12px 0;}
+.outing-actions button{min-height:48px;}
+.city-outing small{display:block;font-size:12px;line-height:1.5;color:#c9e0d4;}
+
+/* 611 Keep the stage interaction below the performer, with explicit one-shot framing. */
+#stage-chip.stage-controls{display:grid;grid-template-columns:minmax(90px,1fr) auto auto;left:12px;right:12px;bottom:148px;transform:none;width:auto;max-width:480px;margin:auto;padding:10px;gap:6px 8px;border:1px solid #ffffff24;text-align:left;font:13px/1.3 system-ui,sans-serif}
+#stage-chip.stage-controls .stage-status{grid-column:1 / 3;min-width:0;font-weight:600;align-self:center}
+#stage-chip.stage-controls .stage-view{grid-column:3;grid-row:1;background:transparent;color:#e7dba8;border:1px solid #ffffff40;padding:7px 9px;font-size:11px}
+#stage-chip.stage-controls select{grid-column:1;grid-row:2;min-width:0;width:100%;font-size:13px}
+#stage-chip.stage-controls .stage-primary{grid-column:3;grid-row:2;white-space:nowrap;padding:8px 12px}
+#stage-chip.stage-controls .stage-change{grid-column:2;grid-row:2;padding:8px 10px}
+#stage-chip.stage-controls .stage-note{grid-column:1 / -1;grid-row:3;font-size:10px;line-height:1.2;margin:0;color:#cad3d5}
+#stage-chip.stage-controls [data-stage-move=join]{grid-column:1 / -1;grid-row:4;background:#d4e9df;color:#17382e}
+#stage-chip button:focus-visible,#stage-chip select:focus-visible{outline:3px solid #fff2aa;outline-offset:2px}
+@media(min-width:641px){#stage-chip.stage-controls{left:50%;right:auto;transform:translateX(-50%);width:480px;bottom:148px}}
+@media(max-height:500px) and (orientation:landscape){#stage-chip.stage-controls{left:auto;right:12px;top:140px;bottom:auto;transform:none;width:300px;max-width:calc(100vw - 36px);max-height:calc(100dvh - 235px);overflow-y:auto;font-size:12px;padding:8px}}
+
+/* Explicit between-stop handoff replaces the old bearing lane, never the activity controls. */
+#outing-handoff{position:fixed;left:12px;right:12px;bottom:40px;max-width:380px;margin:auto;z-index:25;display:flex;gap:6px;height:48px;box-sizing:border-box}
+#outing-handoff[hidden]{display:none}
+#outing-handoff button{min-height:48px;min-width:48px;border:1px solid #d4be7d;border-radius:13px;padding:8px 12px;background:#123e35;color:#fff1c7;font:600 12px/1.3 system-ui;cursor:pointer}
+#outing-go{flex:1;text-align:left}#outing-handoff-pause{flex:none}
+#outing-handoff button:focus-visible{outline:3px solid #fff2aa;outline-offset:2px}
+body.lk-outing-handoff #map-marker{visibility:hidden!important;pointer-events:none}
+body:is(.lk-panel-open,.lk-menu-open,.lk-gate-open,.lk-ride-open,.lk-graphics-down) #outing-handoff{visibility:hidden;pointer-events:none}
+@media(max-width:640px) and (min-height:501px){body.lk-outing-handoff #ride-bar{bottom:100px}}
+@media(max-height:500px) and (orientation:landscape){#outing-handoff{right:auto;left:12px;bottom:48px;width:300px;max-width:calc(100vw - 280px);margin:0}}
+body.lk-outing-handoff .lk-hints{visibility:hidden}
+
+/* Outfit inspection is local to the preview, with non-drag alternatives. */
+#look-turn{justify-content:center;gap:8px;margin:4px 0}#look-turn button{min-width:68px;min-height:44px}
+#look-turn-hint{font-size:12px;line-height:1.4;text-align:center;margin:6px auto 12px;max-width:320px}
+#look-preview canvas{touch-action:pan-y;cursor:grab}#look-preview canvas:active{cursor:grabbing}#look-preview canvas:focus-visible{outline:3px solid #f5d381;outline-offset:3px;border-radius:18px}
+@media(max-height:500px) and (orientation:landscape){
+ #look-preview{float:left;width:140px;height:140px;margin:8px 10px 8px 0;padding:0}#look-preview canvas{width:140px!important;height:140px!important}
+ #look-turn,#look-motion{gap:4px;margin:8px 0}#look-turn button,#look-motion button{min-width:44px;padding:8px;font-size:11px}
+ #look-turn-hint{font-size:10px;margin:4px 0;line-height:1.3}#look-selection{clear:both}
+}
+
+/* 616 Keep the optional mic beside the basic world actions instead of under the stage card. */
+#ride-bar{max-width:min(330px,calc(100vw - 24px))}
+@media(max-width:360px){#ride-bar>button{min-width:64px;padding:10px 9px}}
+
+/* 617 Gesture-free zoom lives in the existing menu, not over the world. */
+.lk-camera-distance{margin-top:10px;padding:14px 0;border-top:1px solid #ffffff25;border-bottom:1px solid #ffffff25}
+.lk-camera-distance label{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#f5e8bd;font-weight:650}
+.lk-camera-distance output{font-variant-numeric:tabular-nums;color:#e7f0e9}
+#camera-distance{display:block;width:100%;min-height:44px;margin:4px 0;accent-color:#eed17d;cursor:pointer}
+#camera-distance:disabled{cursor:default;opacity:.5}#camera-distance:focus-visible{outline:3px solid #ffe7a1;outline-offset:2px;border-radius:8px}
+.lk-camera-distance-ends{display:flex;justify-content:space-between;font-size:11px;color:#c6d9cc}
+.lk-mmenu .lk-camera-distance p{font-size:11px;line-height:1.5}
+
+/* 621 Contextual vehicle actions may wrap; the stage keeps clear of the actual lane. */
+#stage-chip.stage-controls{bottom:calc(100px + var(--world-actions-height,48px))}
+@media(max-height:500px) and (orientation:landscape){
+ #ride-bar{max-width:min(460px,calc(100vw - 200px))}
+ #stage-chip.stage-controls{bottom:auto;max-height:calc(100dvh - 196px - var(--world-actions-height,48px))}
+}
+
+@media(max-width:640px) and (min-height:501px){
+ body.lk-actions-wrapped #stage-chip.stage-controls{grid-template-columns:minmax(64px,1fr) auto auto auto;bottom:calc(92px + var(--world-actions-height,48px));padding:8px;gap:4px 6px}
+ body.lk-actions-wrapped #stage-chip.stage-controls .stage-status{grid-column:1/-1;grid-row:1;font-size:11px}
+ body.lk-actions-wrapped #stage-chip.stage-controls .stage-view{grid-column:4;grid-row:2;font-size:10px;padding:6px}
+ body.lk-actions-wrapped #stage-chip.stage-controls .stage-primary{grid-column:3;grid-row:2;font-size:12px;padding:8px;min-width:44px}
+ body.lk-actions-wrapped #stage-chip.stage-controls .stage-change{grid-column:2;grid-row:2;font-size:11px;padding:8px}
+ body.lk-actions-wrapped #stage-chip.stage-controls select{font-size:12px}
+}
+@media(min-width:1100px) and (min-height:501px){#stage-chip.stage-controls{bottom:148px}}
+
+/* 622 Keep a nearby dance invitation visible in the short-landscape stage card. */
+@media(max-height:500px) and (orientation:landscape){
+ #stage-chip.stage-controls.stage-has-group{grid-template-columns:minmax(88px,1fr) minmax(64px,auto) minmax(88px,auto);gap:6px}
+ #stage-chip.stage-controls.stage-has-group .stage-status{grid-column:1;grid-row:1;font-size:11px;line-height:1.2}
+ #stage-chip.stage-controls.stage-has-group .stage-primary{grid-column:2;grid-row:1;font-size:11px;padding:6px;white-space:normal}
+ #stage-chip.stage-controls.stage-has-group .stage-view{grid-column:3;grid-row:1;font-size:10px;padding:6px}
+ #stage-chip.stage-controls.stage-has-group select{grid-column:1;grid-row:2;font-size:12px;padding:6px}
+ #stage-chip.stage-controls.stage-has-group .stage-change{grid-column:2;grid-row:2;font-size:11px;padding:6px}
+ #stage-chip.stage-controls.stage-has-group [data-stage-move=join]{grid-column:3;grid-row:2;font-size:11px;padding:6px;min-height:44px;overflow-wrap:anywhere}
+}
+
+/* 624 An active destination replaces the passive landmark hint on small screens.
+   Keep movement in its own lower lane; the bearing still opens the full map. */
+@media(max-width:1099px) and (min-height:501px){
+ #map-marker{top:66px;bottom:auto;left:12px;right:12px;transform:none;width:auto;max-width:none;min-height:48px}
+ body:has(#map-marker:not([hidden])) :is(#landmark-hint,.lk-goal){visibility:hidden}
+}
+@media(max-height:500px) and (orientation:landscape){
+ #map-marker{top:62px;bottom:auto;left:12px;right:auto;transform:none;width:calc(100vw - 350px);max-width:360px;min-width:170px;min-height:48px;padding:8px 10px}
+ body:has(#map-marker:not([hidden])) :is(#landmark-hint,.lk-goal){visibility:hidden}
+}
+body:is(.lk-menu-open,.lk-ride-open,.lk-gate-open,.lk-graphics-down) #map-marker{visibility:hidden!important;pointer-events:none}
+
+/* 625 Very short landscape needs both stage rows above the movement lane.
+   Keep full-size targets and the timing note rather than clipping the card. */
+@media(max-height:360px) and (orientation:landscape){
+ #stage-chip.stage-controls{top:62px;width:250px;max-height:calc(100dvh - 166px);grid-template-columns:minmax(64px,1fr) auto auto;gap:6px}
+ #stage-chip.stage-controls .stage-primary,#stage-chip.stage-controls .stage-change{font-size:11px;padding:6px}
+ #stage-chip.stage-controls.stage-has-group{grid-template-columns:minmax(74px,1fr) minmax(60px,auto) minmax(80px,auto)}
+}
+
+/* 626 Between-stop continuation uses the vacated bearing lane in short landscape. */
+@media(max-height:500px) and (orientation:landscape){
+ #outing-handoff{top:62px;bottom:auto;width:calc(100vw - 350px);min-width:170px;max-width:300px}
+ body.lk-outing-handoff :is(#landmark-hint,.lk-goal){visibility:hidden}
+}
+@media(max-width:550px) and (max-height:500px) and (orientation:landscape){
+ #outing-handoff button{padding:8px 6px}
+}
+
+/* 627 Discovery opens as a small invitation; short-landscape details have a view lane. */
+#discovery-stop{min-width:44px}
+@media(max-height:500px) and (orientation:landscape){
+ #discovery-hud{top:62px;left:12px;right:auto;box-sizing:border-box;width:240px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 112px);overflow-y:auto;padding:10px}
+ #discovery-hud.is-compact{top:62px;left:12px;right:auto;width:auto;max-width:220px;padding:5px;border-radius:24px;background:#0d3f36}
+ #discovery-hud.is-compact > :not(#discovery-expand){display:none!important}
+ #discovery-minimize{display:block;margin:0 44px 8px 0}
+ #discovery-hud strong{font-size:15px;padding-right:0}
+ #discovery-hud:has(#discovery-question:not([hidden])) .discovery-detail{display:none}
+ #discovery-hud:has(#discovery-question:not([hidden])) #discovery-minimize{display:none}
+ body:has(#discovery-hud:not([hidden])) :is(#landmark-hint,.lk-goal){visibility:hidden}
+}
+@media(max-height:500px) and (orientation:landscape){
+ #discovery-hud:has(#discovery-question:not([hidden])){max-height:calc(100dvh - 96px)}
+ #discovery-hud:has(#discovery-question:not([hidden])) :is(#discovery-map,#discovery-read,#discovery-restart){display:none}
+ #discovery-question p{font-size:12px;line-height:1.3;margin:6px 0}
+ #discovery-answers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 0}
+ #discovery-answers button{padding:6px 8px;min-width:0;font-size:12px}
+ #discovery-answers button:last-child:nth-child(odd){grid-column:1/-1}
+}
+
+/* 628 Portrait observations leave the landmark and performer above the choices. */
+@media(max-width:640px) and (orientation:portrait){
+ #discovery-hud:has(#discovery-question:not([hidden])){top:auto;bottom:48px;max-height:calc(100dvh - 180px);padding:10px;box-sizing:border-box}
+ #discovery-hud:has(#discovery-question:not([hidden])) :is(.discovery-detail,#discovery-minimize,#discovery-map,#discovery-read,#discovery-restart){display:none}
+ #discovery-look{margin-right:48px}
+ #discovery-answers{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0 0}
+ #discovery-answers button{min-width:0;padding:6px 9px}
+ #discovery-answers button:last-child:nth-child(odd){grid-column:1/-1}
+ body:has(#discovery-hud:not([hidden]) #discovery-question:not([hidden])) :is(#landmark-hint,.lk-goal){visibility:hidden}
+}
+
+/* 631 Keep the optional story invitation below a selected bearing in short landscape. */
+@media(max-height:500px) and (orientation:landscape){
+ body:has(#map-marker:not([hidden])) #discovery-hud.is-compact{top:156px}
+ body:has(#discovery-hud:not([hidden]):not(.is-compact)) #map-marker{visibility:hidden;pointer-events:none}
+}
+
+/* 634 The observation sheet keeps keyboard focus visible. */
+#discovery-hud button:focus-visible{outline:3px solid #fff2aa;outline-offset:2px}
+
+/* Current-city collection handoff stays inside the journal, with no extra world overlay. */
+#discovery-collection .collection-walk{min-height:48px;width:100%;margin:0 0 12px;white-space:normal}
+#discovery-collection .collection-walk:focus-visible{outline:3px solid #fff2aa;outline-offset:2px}
+
+/* Found-story pages keep the walk action and the new fragment ahead of collection detail. */
+#discovery-collection.is-trail-entry{border:0;padding:0;margin:10px 0;background:transparent}
+#discovery-collection.is-trail-entry button{box-sizing:border-box;min-height:44px;width:100%;white-space:normal;margin:0}
+#discovery-continue{display:block;box-sizing:border-box;min-height:48px;width:100%;max-width:100%;white-space:normal;margin:14px 0}
+#discovery-continue:focus-visible,#discovery-collection.is-trail-entry button:focus-visible{outline:3px solid #fff2aa;outline-offset:2px}
+
+/* Bound portrait choices and retry guidance to leave more of the world visible.
+   Longer copy scrolls instead of growing the sheet; close cameras can still overlap it. */
+@media(max-width:640px) and (orientation:portrait){
+ #discovery-hud:has(#discovery-question:not([hidden])){max-height:calc(36dvh - 44px);overscroll-behavior:contain;scroll-padding:10px}
+ #discovery-answers{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #discovery-answers button:last-child:nth-child(odd){grid-column:auto}
+ #discovery-answers button{padding:6px;font-size:12px;line-height:1.25;overflow-wrap:break-word}
+ #discovery-feedback:empty{display:none}
+ #discovery-question.has-feedback #discovery-prompt{display:none}
+ #discovery-question p{font-size:12px;line-height:1.3;margin:6px 0}
+}
+
+/* 641 Keep Look and pause outside the scrolling portrait observation copy. */
+@media(max-width:640px) and (orientation:portrait){
+ #discovery-hud:has(#discovery-question:not([hidden])){overflow:hidden}
+ #discovery-question:not([hidden]){display:flex;flex-direction:column;max-height:calc(36dvh - 64px)}
+ #discovery-look{flex-shrink:0;align-self:flex-start}
+ .discovery-copy{min-height:0;overflow-y:auto;overscroll-behavior:contain;scroll-padding:4px;margin-top:6px}
+ .discovery-copy p:first-child{margin-top:0!important}
+}
+
+/* 646 Keep the direct ring bearing available in the existing short-landscape invitation. */
+.discovery-bearing{display:none}
+@media(max-height:500px) and (orientation:landscape){
+ #discovery-expand .discovery-bearing{display:block;font-size:12px;line-height:1.25;margin-top:2px;max-width:172px}
+}
+
+/* Practice keeps clear of the same measured movement lane as the stage controls. */
+#football-practice{--football-lane:calc(92px + var(--world-actions-height,48px));--football-floor:max(172px,var(--football-lane));bottom:var(--football-floor);box-sizing:border-box;max-height:calc(100dvh - var(--football-floor) - 112px);overflow-y:auto;overscroll-behavior:contain}
+#football-practice.active{--football-floor:var(--football-lane);bottom:var(--football-floor)}
+@media(min-width:641px){#football-practice{--football-lane:calc(90px + var(--world-actions-height,48px))}}
+@media(max-height:500px) and (orientation:landscape){#football-practice{--football-lane:calc(56px + var(--world-actions-height,48px))}}
+@media(min-width:1100px) and (min-height:501px){#football-practice{--football-lane:80px}}
+
+/* Sui passport (testnet hackathon) */
+.sui-box{margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.14)}
+.sui-box h3{margin:0 0 4px;font-size:15px}
+.sui-note{font-size:12px;opacity:.75;margin:0 0 10px}
+.sui-addr{font-size:13px;margin:0 0 8px;word-break:break-all}
+.sui-box a{color:#8fd0f0}
+.sui-stamps{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.sui-status{font-size:12px;margin:8px 0 0;min-height:1em}
+.sui-status.sui-ok{color:#7fd08a}
+.sui-status.sui-warn{color:#f0c86a}
