@@ -141,6 +141,7 @@
 .lk-ridebtn#btn-run, .lk-ridebtn#btn-jump, .lk-ridebtn#btn-sit { min-height: 44px; touch-action: none; }
 .lk-ridebtn#btn-mic { min-height: 44px; touch-action: none; }
 .lk-ridebtn.lk-mic-live { background: #e9b949; border-color: #e9b949; color: #20302a; }
+.lk-ridebtn.lk-mic-speaking { box-shadow: 0 0 0 2px #46d19a, 0 0 10px #46d19a; }
 .lk-input { margin-top: 4px; font-size: 16px; } /* 16px minimum: iOS Safari zooms the whole page into focused inputs under 16px and stays zoomed after join */
 .lk-select { font-size: 16px; } /* same iOS Safari focus-zoom trigger on selects */
 .lk-check {

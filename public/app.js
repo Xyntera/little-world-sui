@@ -2880,6 +2880,7 @@ gamesWire();
     for(const button of [...icons.children])$(settings.has(button.id)?'mmenu-settings':['btn-look','btn-passport'].includes(button.id)?'mmenu-emotes':'mmenu-tools').append(button);
     for(const button of [...emotes.children])$('mmenu-emotes').append(button);
     $('mmenu-emotes').append($('btn-sit'));
+    $('mmenu-emotes').append($('btn-ride'));
     $('btn-menu').hidden=false;
     document.body.classList.add('lk-mmenu-on');
   }
@@ -2951,12 +2952,14 @@ function voiceWire() {
   $('btn-mic').onclick = () => micToggle();
   $('voice-mute').onclick = () => { V.muted = !V.muted; if (V.stream) V.stream.getAudioTracks().forEach(t => t.enabled = !V.muted); voiceRender(); };
 }
-function micBtnRender() { // on-screen mic toggle (tap to talk, tap again to mute; off until tapped)
+function micBtnRender() { // on-screen voice toggle (tap to talk, tap again to mute; mic off until tapped)
   const b = $('btn-mic'); if (!b || b.hidden) return;
   const live = V.on && !V.listenOnly, on = live && !V.muted;
-  b.textContent = on ? 'Mic on' : (live ? 'Muted' : 'Mic');
+  b.textContent = on ? '🎙 Voice: live' : (live ? '🔇 Muted' : '🎙 Voice');
   b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.setAttribute('aria-label', on ? 'Voice live: your microphone is on. Tap to mute.' : (live ? 'Voice muted. Tap to unmute.' : 'Voice: tap to join the city voice room and talk'));
   b.classList.toggle('lk-mic-live', on);
+  if (!on) b.classList.remove('lk-mic-speaking');
 }
 async function micToggle() {
   if (!state.account || !state.account.token) { pushToast('Join the game first'); return; }
@@ -3021,6 +3024,7 @@ async function voiceJoin(listenOnly) {
   if (jr && jr.hear) { V.hearSet = new Set(jr.hear); V.inSet = new Set(jr.inbound || []); }
   try { if (!V.ac && (window.AudioContext || window.webkitAudioContext)) { V.ac = new (window.AudioContext || window.webkitAudioContext)(); const ac=V.ac;ac.onstatechange=()=>{if(V.ac===ac&&V.on)voiceRender();};if (V.ac.state === 'suspended') V.ac.resume().catch(() => {}); } } catch {}
   V.on = true; $('voice-intro').hidden = true; $('voice-live').hidden = false;
+  if (V.stream) voiceLevelWatch(V.stream, session);
   clearInterval(V.timer); V.timer = setInterval(voicePoll, 1000); clearInterval(V.st); V.st = setInterval(voiceStats, 2000); clearInterval(V.lisT); V.lisT = setInterval(voiceListener, 100); voicePoll();
   } finally { if(session===voiceSession){V.busy=false;V.joining=null;voiceJoinUi();} }
 }
@@ -3032,6 +3036,7 @@ function voiceCleanup() {
   for (const id of [...V.pan.keys()]) voiceDetach(id);
   for (const [id, p] of V.peers) { try { p.pc.close(); } catch {} if (p.audio) p.audio.remove(); }
   V.peers.clear(); V.hearSet = new Set(); V.inSet = new Set();
+  V.speaking = false; if (V.levelTimer) { clearInterval(V.levelTimer); V.levelTimer = null; } if (V.levelCleanup) { V.levelCleanup(); V.levelCleanup = null; }
   if (V.ac) { try { V.ac.close(); } catch {} V.ac = null; }
   if (V.stream) { V.stream.getTracks().forEach(t => t.stop()); V.stream = null; }
   $('voice-intro').hidden = false; $('voice-live').hidden = true; $('btn-voice').textContent = 'Voice'; micBtnRender();voiceJoinUi();
@@ -3177,6 +3182,23 @@ function voicePeerLabel(p) {
   if (p.pc.connectionState === 'connected') return p.flowing ? 'connected · audio arriving' : 'connected · waiting for audio';
   return 'connecting';
 }
+function voiceLevelWatch(stream, session) { // local speaking indicator from real mic level
+  try {
+    if (!V.ac) return;
+    const src = V.ac.createMediaStreamSource(stream);
+    const an = V.ac.createAnalyser(); an.fftSize = 256;
+    src.connect(an);
+    const buf = new Uint8Array(an.fftSize);
+    V.levelCleanup = () => { try { src.disconnect(); an.disconnect(); } catch {} };
+    V.levelTimer = setInterval(() => {
+      if (session !== voiceSession || V.stream !== stream || !V.on) return;
+      an.getByteTimeDomainData(buf);
+      let sum = 0; for (let i = 0; i < buf.length; i++) { const d = (buf[i] - 128) / 128; sum += d * d; }
+      const s = !V.muted && Math.sqrt(sum / buf.length) > 0.02;
+      if (s !== !!V.speaking) { V.speaking = s; const b = $('btn-mic'); if (b) b.classList.toggle('lk-mic-speaking', s); voiceRender(); }
+    }, 200);
+  } catch {}
+}
 function voiceRender() {
   if (!V.on) return;
   $('btn-voice').textContent = V.listenOnly ? 'Voice: listening' : (V.muted ? 'Voice: muted' : 'Voice: LIVE');
@@ -3195,11 +3217,11 @@ function voiceRender() {
   $('voice-tap').hidden = !voiceSoundNeedsTap();
   $('voice-mute').hidden = V.listenOnly; $('voice-mute').textContent = V.muted ? 'Unmute mic' : 'Mute mic';
   micBtnRender();
-  const ul = $('voice-list'),listKey=JSON.stringify([voiceSession,state.account.playerId,V.members.map(m=>[m.id,m.name,m.listenOnly,V.hearSet.has(m.id),V.blocked.has(m.id),V.peers.get(m.id)?.gen,V.peers.has(m.id)?voicePeerLabel(V.peers.get(m.id)):null])]);
+  const ul = $('voice-list'),listKey=JSON.stringify([voiceSession,state.account.playerId,V.speaking,V.members.map(m=>[m.id,m.name,m.listenOnly,V.hearSet.has(m.id),V.blocked.has(m.id),V.peers.get(m.id)?.gen,V.peers.has(m.id)?voicePeerLabel(V.peers.get(m.id)):null])]);
   if(ul.dataset.content===listKey)return;ul.dataset.content=listKey;ul.innerHTML = '';
   for (const m of V.members) {
     const li = document.createElement('li'); const me = m.id === state.account.playerId; const p = V.peers.get(m.id);
-    li.innerHTML = '<span>' + esc(m.name) + (me ? ' (you)' : '') + (m.listenOnly ? ' · listening' : '') + (!me && V.hearSet.has(m.id) ? ' · nearby' : '') + (!me && V.peers.has(m.id) ? ' · ' + voicePeerLabel(p) : (!me ? ' · in the room' : '')) + '</span>';
+    li.innerHTML = '<span>' + esc(m.name) + (me ? ' (you)' : '') + (me && V.speaking ? ' · speaking' : '') + (m.listenOnly ? ' · listening' : '') + (!me && V.hearSet.has(m.id) ? ' · nearby' : '') + (!me && V.peers.has(m.id) ? ' · ' + voicePeerLabel(p) : (!me ? ' · in the room' : '')) + '</span>';
     if (!me) {
       const mb = document.createElement('button'); mb.className = 'lk-mini'; mb.textContent = V.blocked.has(m.id) ? 'Unmute' : 'Mute'; mb.setAttribute('aria-label', (V.blocked.has(m.id) ? 'Unmute ' : 'Mute ') + m.name);
       mb.onclick = () => { if (V.blocked.has(m.id)) V.blocked.delete(m.id); else V.blocked.add(m.id); try { localStorage.setItem('lk.voice.blocked', JSON.stringify([...V.blocked])); } catch {} if (p && p.audio) p.audio.muted = V.blocked.has(m.id); const n = V.pan.get(m.id); if (n) n.g.gain.value = V.blocked.has(m.id) ? 0 : 1; voiceRender(); };
