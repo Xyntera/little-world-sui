@@ -2871,7 +2871,7 @@ gamesWire();
   const setMobileMenu = open => {
     $('mmenu').hidden = !open;
     document.body.classList.toggle('lk-menu-open',open);
-    if(open){closeRideSheets();state._resetInput?.();$('camera-distance').max=String(Math.max(15,cam.dist));syncCameraDistance();$('menu-close').focus();}
+    if(open){closeRideSheets();setPanel('none');state._resetInput?.();$('camera-distance').max=String(Math.max(15,cam.dist));syncCameraDistance();$('menu-close').focus();}
     $('btn-menu').setAttribute('aria-expanded', String(open));
   };
   function applyMenuMode() {
@@ -3024,7 +3024,7 @@ async function voiceJoin(listenOnly) {
   if (jr && jr.hear) { V.hearSet = new Set(jr.hear); V.inSet = new Set(jr.inbound || []); }
   try { if (!V.ac && (window.AudioContext || window.webkitAudioContext)) { V.ac = new (window.AudioContext || window.webkitAudioContext)(); const ac=V.ac;ac.onstatechange=()=>{if(V.ac===ac&&V.on)voiceRender();};if (V.ac.state === 'suspended') V.ac.resume().catch(() => {}); } } catch {}
   V.on = true; $('voice-intro').hidden = true; $('voice-live').hidden = false;
-  if (V.stream) voiceLevelWatch(V.stream, session);
+  voiceLevelWatch(V.stream, session);
   clearInterval(V.timer); V.timer = setInterval(voicePoll, 1000); clearInterval(V.st); V.st = setInterval(voiceStats, 2000); clearInterval(V.lisT); V.lisT = setInterval(voiceListener, 100); voicePoll();
   } finally { if(session===voiceSession){V.busy=false;V.joining=null;voiceJoinUi();} }
 }
@@ -3051,14 +3051,14 @@ function voiceAttach(id, p, stream) { // audible peer: route through a spatial p
       const pan = V.ac.createPanner(); pan.panningModel = 'equalpower'; pan.distanceModel = 'inverse'; pan.refDistance = 2; pan.maxDistance = 20; pan.rolloffFactor = 1.4;
       const g = V.ac.createGain(); g.gain.value = V.blocked.has(id) ? 0 : 1;
       src.connect(pan); pan.connect(g); g.connect(V.ac.destination);
-      V.pan.set(id, { src, pan, g }); return;
+      V.pan.set(id, { src, pan, g }); if (V.levelAdd) V.levelAdd(id, stream); return;
     } catch {}
   }
   if (!p.audio) { p.audio = document.createElement('audio'); p.audio.autoplay = true; p.audio.setAttribute('playsinline', ''); document.body.appendChild(p.audio); }
   p.audio.srcObject = stream; p.audio.muted = V.blocked.has(id);
   p.audio.play().then(() => { if(!V.on||V.peers.get(id)!==p)return;p.needTap = false; voiceRender(); }).catch(() => { if(!V.on||V.peers.get(id)!==p)return;p.needTap = true; voiceRender(); });
 }
-function voiceDetach(id) { const n = V.pan.get(id); if (n) { try { n.src.disconnect(); n.pan.disconnect(); n.g.disconnect(); } catch {} V.pan.delete(id); } }
+function voiceDetach(id) { const n = V.pan.get(id); if (n) { try { n.src.disconnect(); n.pan.disconnect(); n.g.disconnect(); } catch {} V.pan.delete(id); } if (V.levelRemove) V.levelRemove(id); }
 function voicePosUpdate(pos) { // place heard voices in the world (1s poll cadence, smoothed)
   if (!V.ac) return; const t = V.ac.currentTime;
   for (const [id, n] of V.pan) { const q = pos && pos[id]; if (q) { n.pan.positionX.setTargetAtTime(q[0], t, .3); n.pan.positionY.setTargetAtTime(1.6, t, .3); n.pan.positionZ.setTargetAtTime(q[1], t, .3); } }
@@ -3182,20 +3182,27 @@ function voicePeerLabel(p) {
   if (p.pc.connectionState === 'connected') return p.flowing ? 'connected · audio arriving' : 'connected · waiting for audio';
   return 'connecting';
 }
-function voiceLevelWatch(stream, session) { // local speaking indicator from real mic level
+function voiceLevelWatch(stream, session) { // speaking indicators from real audio levels (own mic + connected peers)
   try {
     if (!V.ac) return;
-    const src = V.ac.createMediaStreamSource(stream);
-    const an = V.ac.createAnalyser(); an.fftSize = 256;
-    src.connect(an);
-    const buf = new Uint8Array(an.fftSize);
-    V.levelCleanup = () => { try { src.disconnect(); an.disconnect(); } catch {} };
+    if (!V.levelTargets) V.levelTargets = new Map();
+    V.levelAdd = (key, stream2) => {
+      try { const src = V.ac.createMediaStreamSource(stream2); const an = V.ac.createAnalyser(); an.fftSize = 256; src.connect(an); V.levelTargets.set(key, { src, an, buf: new Uint8Array(an.fftSize) }); } catch {}
+    };
+    V.levelRemove = key => { const t = V.levelTargets && V.levelTargets.get(key); if (t) { try { t.src.disconnect(); t.an.disconnect(); } catch {} V.levelTargets.delete(key); } };
+    V.levelCleanup = () => { for (const k of [...(V.levelTargets ? V.levelTargets.keys() : [])]) V.levelRemove(k); };
+    if (stream) V.levelAdd('me', stream);
     V.levelTimer = setInterval(() => {
-      if (session !== voiceSession || V.stream !== stream || !V.on) return;
-      an.getByteTimeDomainData(buf);
-      let sum = 0; for (let i = 0; i < buf.length; i++) { const d = (buf[i] - 128) / 128; sum += d * d; }
-      const s = !V.muted && Math.sqrt(sum / buf.length) > 0.02;
-      if (s !== !!V.speaking) { V.speaking = s; const b = $('btn-mic'); if (b) b.classList.toggle('lk-mic-speaking', s); voiceRender(); }
+      if (session !== voiceSession || !V.on) return;
+      let changed = false;
+      for (const [key, t] of V.levelTargets) {
+        t.an.getByteTimeDomainData(t.buf);
+        let sum = 0; for (let i = 0; i < t.buf.length; i++) { const d = (t.buf[i] - 128) / 128; sum += d * d; }
+        const speaking = Math.sqrt(sum / t.buf.length) > 0.02;
+        if (key === 'me') { const s = speaking && !V.muted; if (s !== !!V.speaking) { V.speaking = s; const b = $('btn-mic'); if (b) b.classList.toggle('lk-mic-speaking', s); changed = true; } }
+        else { const p = V.peers.get(key); if (p && speaking !== !!p.speaking) { p.speaking = speaking; changed = true; } }
+      }
+      if (changed) voiceRender();
     }, 200);
   } catch {}
 }
@@ -3217,11 +3224,11 @@ function voiceRender() {
   $('voice-tap').hidden = !voiceSoundNeedsTap();
   $('voice-mute').hidden = V.listenOnly; $('voice-mute').textContent = V.muted ? 'Unmute mic' : 'Mute mic';
   micBtnRender();
-  const ul = $('voice-list'),listKey=JSON.stringify([voiceSession,state.account.playerId,V.speaking,V.members.map(m=>[m.id,m.name,m.listenOnly,V.hearSet.has(m.id),V.blocked.has(m.id),V.peers.get(m.id)?.gen,V.peers.has(m.id)?voicePeerLabel(V.peers.get(m.id)):null])]);
+  const ul = $('voice-list'),listKey=JSON.stringify([voiceSession,state.account.playerId,V.speaking,V.members.map(m=>[m.id,m.name,m.listenOnly,V.hearSet.has(m.id),V.blocked.has(m.id),V.peers.get(m.id)?.gen,V.peers.get(m.id)?.speaking,V.peers.has(m.id)?voicePeerLabel(V.peers.get(m.id)):null])]);
   if(ul.dataset.content===listKey)return;ul.dataset.content=listKey;ul.innerHTML = '';
   for (const m of V.members) {
     const li = document.createElement('li'); const me = m.id === state.account.playerId; const p = V.peers.get(m.id);
-    li.innerHTML = '<span>' + esc(m.name) + (me ? ' (you)' : '') + (me && V.speaking ? ' · speaking' : '') + (m.listenOnly ? ' · listening' : '') + (!me && V.hearSet.has(m.id) ? ' · nearby' : '') + (!me && V.peers.has(m.id) ? ' · ' + voicePeerLabel(p) : (!me ? ' · in the room' : '')) + '</span>';
+    li.innerHTML = '<span>' + esc(m.name) + (me ? ' (you)' : '') + (me && V.speaking ? ' · speaking' : '') + (!me && p && p.speaking ? ' · speaking' : '') + (m.listenOnly ? ' · listening' : '') + (!me && V.hearSet.has(m.id) ? ' · nearby' : '') + (!me && V.peers.has(m.id) ? ' · ' + voicePeerLabel(p) : (!me ? ' · in the room' : '')) + '</span>';
     if (!me) {
       const mb = document.createElement('button'); mb.className = 'lk-mini'; mb.textContent = V.blocked.has(m.id) ? 'Unmute' : 'Mute'; mb.setAttribute('aria-label', (V.blocked.has(m.id) ? 'Unmute ' : 'Mute ') + m.name);
       mb.onclick = () => { if (V.blocked.has(m.id)) V.blocked.delete(m.id); else V.blocked.add(m.id); try { localStorage.setItem('lk.voice.blocked', JSON.stringify([...V.blocked])); } catch {} if (p && p.audio) p.audio.muted = V.blocked.has(m.id); const n = V.pan.get(m.id); if (n) n.g.gain.value = V.blocked.has(m.id) ? 0 : 1; voiceRender(); };
