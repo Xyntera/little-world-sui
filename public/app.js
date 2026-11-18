@@ -237,10 +237,10 @@ function initThree() {
 
   camera = new THREE.PerspectiveCamera(55, 1, .1, 900);
 
-  hemi = new THREE.HemisphereLight('#7fa8d8', '#46604e', .72);
+  hemi = new THREE.HemisphereLight('#8ab2da', '#55705f', .95);
   scene.add(hemi);
   sun = new THREE.DirectionalLight('#ffc98f', 1.72);
-  sun.position.set(-72, 52, -38);
+  sun.position.set(-68, 64, -36);
   sun.castShadow = true;
   const SMALL_SCREEN=matchMedia('(max-width: 640px)').matches;
   sun.shadow.mapSize.set(SMALL_SCREEN ? 1024 : 2048, SMALL_SCREEN ? 1024 : 2048); // 4x fewer shadow texels on phones; softens shadow edges slightly
@@ -1700,7 +1700,7 @@ function updateCamera(dt) {
     if (cam._visibleOccBlocked) { occXrayOn(player.veh); if(player.group.visible)occXrayOn(player.group); cam._occX = .35; }
   } else { cam._visibleOccBlocked = false; cam._visibleOccWorld = null; cam._visibleOccWait = 0; }
   worldData.clothingVenue?.cameraCutaway(camera,player,!fpMode&&!vk,dt);
-  sun.position.set(cam.target.x - 72, 52, cam.target.z - 38);
+  sun.position.set(cam.target.x - 68, 64, cam.target.z - 36);
   sun.target.position.copy(cam.target);
 }
 function recenterView(){
@@ -2105,7 +2105,7 @@ function setMonsoon(on) {
   scene.background.set(on ? '#5e7d8c' : (worldData.sky || DUSK_SKY));
   scene.fog.color.set(on ? '#6e8b99' : (worldData.fog || '#a8dcee'));
   scene.fog.near = on ? 40 : 70; scene.fog.far = on ? 200 : 320;
-  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); hemi.intensity = on ? .55 : .72;
+  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); hemi.intensity = on ? .55 : .95;
   $('btn-monsoon').classList.toggle('is-on', on);
   rainSound(on);
   if (on) pushToast('മഴ വന്നു! Monsoon rain', null, true);
