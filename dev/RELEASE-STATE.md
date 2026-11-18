@@ -6,3 +6,10 @@ As of 2026-11-18 (IST), updated after dusk v4 merge:
 - Production deploy is manual (Render auto-deploy was disabled during the 06:34 rollback). Rollback path: redeploy commit bcf9811 (tree identical to pre-dusk state) via Render dashboard.
 - Verification gate for graphics deploys: actual city-init execution + pixels (welcome -> Play -> rendered city) on a working browser BEFORE production deploy. A syntax check alone is not sufficient (a module-scope bug slipped through once). HUD-only evidence is not rendering proof. v4 passed this gate locally on 2026-11-18. DEPLOYED to production 2026-11-18 ~07:22 IST (manual deploy of the merge commit) and verified live: join -> Play -> rendered New York AND Kerala on hosted https://little-world-sui.onrender.com with real Chrome pixels, mic UI present, zero JS errors, no context loss.
 - wip/voice-peer-speaking (60795f6) stays excluded from production until real validation.
+
+## Voice + mic verification record (2026-11-18)
+
+- Mic UI states (off "TAP TO TALK", red live "LIVE · TAP TO MUTE", crossed muted "MUTED · TAP TO UNMUTE") runtime-proven locally with real getUserMedia (fake device) + real voice-server join.
+- Through hosted production: two synthetic clients joined the same voice room, server pairing worked (members=2), WebRTC ICE/DTLS connected, RTP audio packets flowed (+16.6KB/5s inbound), remote track live with playback started.
+- Control loopback (no game/server) reproduces packets-flowing-but-zero-decoded-energy in headless Chrome: the zero decoded far-end energy is a synthetic-test limitation, not evidence of an app defect. Audible audio and mute audibility remain unverified and need a real-device check.
+- No production changes made for voice; mic states were already shipped in bcf9811.
