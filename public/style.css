@@ -139,9 +139,15 @@
 .lk-emotes button.lk-on, .lk-moverow button.lk-on { outline: 2px solid #d9c97e; }
 #look-moves .lk-chip.lk-on { background: #d9c97e; color: #0b332c; font-weight: 700; }
 .lk-ridebtn#btn-run, .lk-ridebtn#btn-jump, .lk-ridebtn#btn-sit { min-height: 44px; touch-action: none; }
-.lk-ridebtn#btn-mic { min-height: 44px; touch-action: none; }
-.lk-ridebtn.lk-mic-live { background: #e9b949; border-color: #e9b949; color: #20302a; }
-.lk-ridebtn.lk-mic-speaking { box-shadow: 0 0 0 2px #46d19a, 0 0 10px #46d19a; }
+/* Big round voice button: mic off until tapped; clear off / live / muted / speaking states */
+.lk-ridebtn#btn-mic { min-width: 64px; width: 64px; min-height: 64px; height: 64px; padding: 0; margin-bottom: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(13,48,41,.92); border: 1.5px solid rgba(255,255,255,.28); color: #f3ead2; touch-action: none; position: relative; }
+.lk-ridebtn#btn-mic[hidden] { display: none !important; }
+.lk-ridebtn#btn-mic .lk-mic-slash { display: none; }
+.lk-ridebtn#btn-mic.lk-mic-muted { background: rgba(32,48,42,.94); color: #93a89c; }
+.lk-ridebtn#btn-mic.lk-mic-muted .lk-mic-slash { display: block; }
+.lk-ridebtn#btn-mic.lk-mic-live { background: #e2574c; border-color: #f2a196; color: #fff; }
+.lk-ridebtn#btn-mic.lk-mic-speaking { box-shadow: 0 0 0 3px #46d19a, 0 0 14px #46d19a; }
+.lk-ridebtn#btn-mic::after { content: attr(data-caption); position: absolute; top: calc(100% + 6px); right: 0; width: max-content; max-width: 96px; text-align: center; font: 700 9px/1.35 system-ui; letter-spacing: .05em; color: #fff1c8; text-shadow: 0 1px 3px rgba(0,0,0,.65); pointer-events: none; }
 .lk-input { margin-top: 4px; font-size: 16px; } /* 16px minimum: iOS Safari zooms the whole page into focused inputs under 16px and stays zoomed after join */
 .lk-select { font-size: 16px; } /* same iOS Safari focus-zoom trigger on selects */
 .lk-check {
@@ -384,7 +390,7 @@ body { overflow: hidden; background: #0b332c; }
 /* One-Menu mobile collapse: utility row + emotes live in a single Menu sheet on narrow screens */
 #btn-menu[hidden], .lk-mmenu[hidden] { display: none !important; }
 #btn-menu { margin-left: auto; }
-.lk-mmenu { position: absolute; top: 56px; right: 10px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; background: rgba(13,48,41,.97); border: 1px solid rgba(255,255,255,.18); max-width: calc(100vw - 20px); box-sizing: border-box; }
+.lk-mmenu { position: absolute; top: 56px; right: 10px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 14px; background: rgba(13,48,41,.97); border: 1px solid rgba(255,255,255,.18); max-width: calc(100vw - 20px); max-height: calc(100dvh - 66px); overflow-y: auto; box-sizing: border-box; }
 .lk-mmenu-sec { display: flex; flex-wrap: wrap; gap: 6px; }
 .lk-mmenu button { min-width: 54px; height: 36px; padding: 0 12px; border-radius: 999px !important; border: 1px solid rgba(255,255,255,.25); background: rgba(16,66,57,.85); color: #f3ead2; font-size: 12px; font-weight: 600; cursor: pointer; }
 .lk-mmenu button.lk-on { outline: 2px solid #d9c97e; }
