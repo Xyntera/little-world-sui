@@ -179,6 +179,13 @@ function setPoints(n) {
 
 /* ================= 3D ================= */
 let renderer, scene, camera, worldData, sun, hemi;
+
+/* Dusk grade (reference mood pass): cool/darken per-world sky+fog, warm/dim sun. Constant tweaks only - same lights, same passes. */
+const _duskHSL = {};
+function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL(_duskHSL.h, _duskHSL.s * .6, Math.max(.08, _duskHSL.l * .56)); return '#' + c.getHexString(); } // keep city hue, desaturate+darken to dusk
+function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffd9a8'), .7).getHexString(); }
+const DUSK_SKY = duskCool('#8fd3ee'), DUSK_FOG = duskCool('#a8dcee');
+function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .82] : ['#ffd9a8', 1.55]; return w; }
 let player = null, playerVel = new THREE.Vector3();
 const cam = { yaw: Math.PI, pitch: .42, dist: 8.2, fp: false, target: new THREE.Vector3() };
 const keys = {};
@@ -224,12 +231,6 @@ function initThree() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   scene = new THREE.Scene();
-  // Dusk grade (reference mood pass): cool/darken per-world sky+fog, warm/dim sun. Constant tweaks only - same lights, same passes.
-  const _duskHSL = {};
-  function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL(_duskHSL.h, _duskHSL.s * .6, Math.max(.08, _duskHSL.l * .56)); return '#' + c.getHexString(); } // keep city hue, desaturate+darken to dusk
-  function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffd9a8'), .7).getHexString(); }
-  const DUSK_SKY = duskCool('#8fd3ee'), DUSK_FOG = duskCool('#a8dcee');
-  function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .82] : ['#ffd9a8', 1.55]; return w; }
 
   scene.background = new THREE.Color(DUSK_SKY);
   scene.fog = new THREE.Fog(DUSK_FOG, 70, 320);
