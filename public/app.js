@@ -182,7 +182,7 @@ let renderer, scene, camera, worldData, sun, hemi;
 
 /* Dusk grade (reference mood pass): cool/darken per-world sky+fog, warm/dim sun. Constant tweaks only - same lights, same passes. */
 const _duskHSL = {};
-function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL((_duskHSL.h + .03) % 1, Math.min(1, _duskHSL.s * .72), Math.max(.12, _duskHSL.l * .66)); return '#' + c.getHexString(); } // shift hue toward blue, moderate desat+darken (readability kept)
+function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL((_duskHSL.h + .045) % 1, Math.min(1, _duskHSL.s * .75), Math.max(.11, _duskHSL.l * .6)); return '#' + c.getHexString(); } // shift hue toward blue, moderate desat+darken (readability kept)
 function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffc98f'), .8).getHexString(); }
 const DUSK_SKY = duskCool('#8fd3ee'), DUSK_FOG = duskCool('#a8dcee');
 function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .9] : ['#ffc98f', 1.72]; return w; }
@@ -237,9 +237,9 @@ function initThree() {
 
   camera = new THREE.PerspectiveCamera(55, 1, .1, 900);
 
-  hemi = new THREE.HemisphereLight('#8ab2da', '#55705f', .95);
+  hemi = new THREE.HemisphereLight('#8ab2da', '#4e7a54', 1.05);
   scene.add(hemi);
-  sun = new THREE.DirectionalLight('#ffc98f', 1.72);
+  sun = new THREE.DirectionalLight('#ffc98f', 1.85);
   sun.position.set(-68, 64, -36);
   sun.castShadow = true;
   const SMALL_SCREEN=matchMedia('(max-width: 640px)').matches;
