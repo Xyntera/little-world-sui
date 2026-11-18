@@ -2871,7 +2871,7 @@ gamesWire();
   const setMobileMenu = open => {
     $('mmenu').hidden = !open;
     document.body.classList.toggle('lk-menu-open',open);
-    if(open){closeRideSheets();state._resetInput?.();$('camera-distance').max=String(Math.max(15,cam.dist));syncCameraDistance();$('menu-close').focus();}
+    if(open){closeRideSheets();setPanel('none');state._resetInput?.();$('camera-distance').max=String(Math.max(15,cam.dist));syncCameraDistance();$('menu-close').focus();}
     $('btn-menu').setAttribute('aria-expanded', String(open));
   };
   function applyMenuMode() {
