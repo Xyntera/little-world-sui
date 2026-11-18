@@ -182,10 +182,10 @@ let renderer, scene, camera, worldData, sun, hemi;
 
 /* Dusk grade (reference mood pass): cool/darken per-world sky+fog, warm/dim sun. Constant tweaks only - same lights, same passes. */
 const _duskHSL = {};
-function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL(_duskHSL.h, _duskHSL.s * .6, Math.max(.08, _duskHSL.l * .56)); return '#' + c.getHexString(); } // keep city hue, desaturate+darken to dusk
-function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffd9a8'), .7).getHexString(); }
+function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL((_duskHSL.h + .03) % 1, Math.min(1, _duskHSL.s * .72), Math.max(.12, _duskHSL.l * .66)); return '#' + c.getHexString(); } // shift hue toward blue, moderate desat+darken (readability kept)
+function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffc98f'), .8).getHexString(); }
 const DUSK_SKY = duskCool('#8fd3ee'), DUSK_FOG = duskCool('#a8dcee');
-function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .82] : ['#ffd9a8', 1.55]; return w; }
+function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .9] : ['#ffc98f', 1.72]; return w; }
 let player = null, playerVel = new THREE.Vector3();
 const cam = { yaw: Math.PI, pitch: .42, dist: 8.2, fp: false, target: new THREE.Vector3() };
 const keys = {};
@@ -237,10 +237,10 @@ function initThree() {
 
   camera = new THREE.PerspectiveCamera(55, 1, .1, 900);
 
-  hemi = new THREE.HemisphereLight('#8fb4de', '#5f9f5a', .9);
+  hemi = new THREE.HemisphereLight('#7fa8d8', '#46604e', .72);
   scene.add(hemi);
-  sun = new THREE.DirectionalLight('#ffd9a8', 1.55);
-  sun.position.set(-60, 90, -40);
+  sun = new THREE.DirectionalLight('#ffc98f', 1.72);
+  sun.position.set(-72, 52, -38);
   sun.castShadow = true;
   const SMALL_SCREEN=matchMedia('(max-width: 640px)').matches;
   sun.shadow.mapSize.set(SMALL_SCREEN ? 1024 : 2048, SMALL_SCREEN ? 1024 : 2048); // 4x fewer shadow texels on phones; softens shadow edges slightly
@@ -1700,7 +1700,7 @@ function updateCamera(dt) {
     if (cam._visibleOccBlocked) { occXrayOn(player.veh); if(player.group.visible)occXrayOn(player.group); cam._occX = .35; }
   } else { cam._visibleOccBlocked = false; cam._visibleOccWorld = null; cam._visibleOccWait = 0; }
   worldData.clothingVenue?.cameraCutaway(camera,player,!fpMode&&!vk,dt);
-  sun.position.set(cam.target.x - 60, 90, cam.target.z - 40);
+  sun.position.set(cam.target.x - 72, 52, cam.target.z - 38);
   sun.target.position.copy(cam.target);
 }
 function recenterView(){
@@ -2105,7 +2105,7 @@ function setMonsoon(on) {
   scene.background.set(on ? '#5e7d8c' : (worldData.sky || DUSK_SKY));
   scene.fog.color.set(on ? '#6e8b99' : (worldData.fog || '#a8dcee'));
   scene.fog.near = on ? 40 : 70; scene.fog.far = on ? 200 : 320;
-  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.55); hemi.intensity = on ? .55 : .9;
+  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); hemi.intensity = on ? .55 : .72;
   $('btn-monsoon').classList.toggle('is-on', on);
   rainSound(on);
   if (on) pushToast('മഴ വന്നു! Monsoon rain', null, true);
@@ -2539,7 +2539,7 @@ function loadCity(id) {
   clearParked();
   worldData = applyDuskGrade(id === 'kerala' ? buildWorld(scene) : buildCity(scene, id));
   if (!state.monsoon) { scene.background.set(worldData.sky || DUSK_SKY); scene.fog.color.set(worldData.fog || DUSK_FOG); }
-  sun.color.set(worldData.sun ? worldData.sun[0] : '#ffd9a8'); sun.intensity = state.monsoon ? .8 : (worldData.sun ? worldData.sun[1] : 1.55); // per-city climate tint (design inspiration), monsoon override preserved
+  sun.color.set(worldData.sun ? worldData.sun[0] : '#ffc98f'); sun.intensity = state.monsoon ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); // per-city climate tint (design inspiration), monsoon override preserved
   if (id === 'kerala') {
     const zc = districtZone(state.account && state.account.district >= 0 ? state.account.district : 3).zc;
     spawnPlayer(-20, zc + 8); seedPickups(-20, zc + 8, 10, 26);
