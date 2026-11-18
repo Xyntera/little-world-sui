@@ -179,6 +179,13 @@ function setPoints(n) {
 
 /* ================= 3D ================= */
 let renderer, scene, camera, worldData, sun, hemi;
+
+/* Dusk grade (reference mood pass): cool/darken per-world sky+fog, warm/dim sun. Constant tweaks only - same lights, same passes. */
+const _duskHSL = {};
+function duskCool(hex) { const c = new THREE.Color(hex); c.getHSL(_duskHSL); c.setHSL((_duskHSL.h + .045) % 1, Math.min(1, _duskHSL.s * .75), Math.max(.11, _duskHSL.l * .6)); return '#' + c.getHexString(); } // shift hue toward blue, moderate desat+darken (readability kept)
+function duskWarm(hex) { return '#' + new THREE.Color(hex).lerp(new THREE.Color('#ffc98f'), .8).getHexString(); }
+const DUSK_SKY = duskCool('#8fd3ee'), DUSK_FOG = duskCool('#a8dcee');
+function applyDuskGrade(w) { w.sky = duskCool(w.sky || '#8fd3ee'); w.fog = duskCool(w.fog || '#a8dcee'); w.sun = w.sun ? [duskWarm(w.sun[0]), w.sun[1] * .9] : ['#ffc98f', 1.72]; return w; }
 let player = null, playerVel = new THREE.Vector3();
 const cam = { yaw: Math.PI, pitch: .42, dist: 8.2, fp: false, target: new THREE.Vector3() };
 const keys = {};
@@ -224,15 +231,16 @@ function initThree() {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color('#8fd3ee');
-  scene.fog = new THREE.Fog('#a8dcee', 90, 340);
+
+  scene.background = new THREE.Color(DUSK_SKY);
+  scene.fog = new THREE.Fog(DUSK_FOG, 70, 320);
 
   camera = new THREE.PerspectiveCamera(55, 1, .1, 900);
 
-  hemi = new THREE.HemisphereLight('#bfe8ff', '#5f9f5a', .95);
+  hemi = new THREE.HemisphereLight('#8ab2da', '#4e7a54', 1.05);
   scene.add(hemi);
-  sun = new THREE.DirectionalLight('#fff2d8', 1.9);
-  sun.position.set(-60, 90, -40);
+  sun = new THREE.DirectionalLight('#ffc98f', 1.85);
+  sun.position.set(-68, 64, -36);
   sun.castShadow = true;
   const SMALL_SCREEN=matchMedia('(max-width: 640px)').matches;
   sun.shadow.mapSize.set(SMALL_SCREEN ? 1024 : 2048, SMALL_SCREEN ? 1024 : 2048); // 4x fewer shadow texels on phones; softens shadow edges slightly
@@ -241,7 +249,7 @@ function initThree() {
   sun.shadow.camera.far = 400; sun.shadow.bias = -.0004;
   scene.add(sun); scene.add(sun.target);
 
-  worldData = buildWorld(scene);
+  worldData = applyDuskGrade(buildWorld(scene));
 
   // rain (hidden until monsoon)
   const rainGeo = new THREE.BufferGeometry();
@@ -1692,7 +1700,7 @@ function updateCamera(dt) {
     if (cam._visibleOccBlocked) { occXrayOn(player.veh); if(player.group.visible)occXrayOn(player.group); cam._occX = .35; }
   } else { cam._visibleOccBlocked = false; cam._visibleOccWorld = null; cam._visibleOccWait = 0; }
   worldData.clothingVenue?.cameraCutaway(camera,player,!fpMode&&!vk,dt);
-  sun.position.set(cam.target.x - 60, 90, cam.target.z - 40);
+  sun.position.set(cam.target.x - 68, 64, cam.target.z - 36);
   sun.target.position.copy(cam.target);
 }
 function recenterView(){
@@ -2094,10 +2102,10 @@ function setMonsoon(on) {
   state.monsoon = on;
   rainPts.visible = on;
   const atmosphere=worldData.group&&worldData.group.getObjectByName('prague-atmosphere');if(atmosphere)atmosphere.visible=!on;
-  scene.background.set(on ? '#5e7d8c' : (worldData.sky || '#8fd3ee'));
+  scene.background.set(on ? '#5e7d8c' : (worldData.sky || DUSK_SKY));
   scene.fog.color.set(on ? '#6e8b99' : (worldData.fog || '#a8dcee'));
-  scene.fog.near = on ? 40 : 90; scene.fog.far = on ? 200 : 340;
-  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.9); hemi.intensity = on ? .55 : .95;
+  scene.fog.near = on ? 40 : 70; scene.fog.far = on ? 200 : 320;
+  sun.intensity = on ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); hemi.intensity = on ? .55 : .95;
   $('btn-monsoon').classList.toggle('is-on', on);
   rainSound(on);
   if (on) pushToast('മഴ വന്നു! Monsoon rain', null, true);
@@ -2529,9 +2537,9 @@ function loadCity(id) {
   if (state.taxi) cancelTaxi();
   if (player && player.pk) setVehicle(player, null, 0);
   clearParked();
-  worldData = id === 'kerala' ? buildWorld(scene) : buildCity(scene, id);
-  if (!state.monsoon) { scene.background.set(worldData.sky || '#8fd3ee'); scene.fog.color.set(worldData.fog || '#a8dcee'); }
-  sun.color.set(worldData.sun ? worldData.sun[0] : '#fff2d8'); sun.intensity = state.monsoon ? .8 : (worldData.sun ? worldData.sun[1] : 1.9); // per-city climate tint (design inspiration), monsoon override preserved
+  worldData = applyDuskGrade(id === 'kerala' ? buildWorld(scene) : buildCity(scene, id));
+  if (!state.monsoon) { scene.background.set(worldData.sky || DUSK_SKY); scene.fog.color.set(worldData.fog || DUSK_FOG); }
+  sun.color.set(worldData.sun ? worldData.sun[0] : '#ffc98f'); sun.intensity = state.monsoon ? .8 : (worldData.sun ? worldData.sun[1] : 1.72); // per-city climate tint (design inspiration), monsoon override preserved
   if (id === 'kerala') {
     const zc = districtZone(state.account && state.account.district >= 0 ? state.account.district : 3).zc;
     spawnPlayer(-20, zc + 8); seedPickups(-20, zc + 8, 10, 26);
