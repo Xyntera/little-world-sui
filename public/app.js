@@ -2949,11 +2949,11 @@ function voiceWire() {
   $('voice-listen').onclick = () => voiceJoin(true);
   $('voice-cancel').onclick = () => voiceLeave();
   $('voice-leave').onclick = () => voiceLeave(); $('voice-tap').onclick = voiceTap;
-  $('btn-mic').onclick = () => micToggle();
+  $('btn-mic').onclick = () => micToggle(); micBtnRender();
   $('voice-mute').onclick = () => { V.muted = !V.muted; if (V.stream) V.stream.getAudioTracks().forEach(t => t.enabled = !V.muted); voiceRender(); };
 }
 function micBtnRender() { // on-screen voice toggle (tap to talk, tap again to mute; mic off until tapped)
-  const b = $('btn-mic'); if (!b || b.hidden) return;
+  const b = $('btn-mic'); if (!b) return;
   const live = V.on && !V.listenOnly, on = live && !V.muted;
   b.setAttribute('aria-pressed', on ? 'true' : 'false');
   b.setAttribute('aria-label', on ? 'Voice live: your microphone is on. Tap to mute.' : (live ? 'Voice muted. Tap to unmute.' : 'Voice: tap to join the city voice room and talk'));
