@@ -2955,10 +2955,11 @@ function voiceWire() {
 function micBtnRender() { // on-screen voice toggle (tap to talk, tap again to mute; mic off until tapped)
   const b = $('btn-mic'); if (!b || b.hidden) return;
   const live = V.on && !V.listenOnly, on = live && !V.muted;
-  b.textContent = on ? '🎙 Voice: live' : (live ? '🔇 Muted' : '🎙 Voice');
   b.setAttribute('aria-pressed', on ? 'true' : 'false');
   b.setAttribute('aria-label', on ? 'Voice live: your microphone is on. Tap to mute.' : (live ? 'Voice muted. Tap to unmute.' : 'Voice: tap to join the city voice room and talk'));
+  b.setAttribute('data-caption', on ? 'LIVE · TAP TO MUTE' : (live ? 'MUTED · TAP TO UNMUTE' : 'TAP TO TALK'));
   b.classList.toggle('lk-mic-live', on);
+  b.classList.toggle('lk-mic-muted', live && V.muted);
   if (!on) b.classList.remove('lk-mic-speaking');
 }
 async function micToggle() {
